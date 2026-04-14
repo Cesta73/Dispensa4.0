@@ -8,67 +8,60 @@
   <script src="https://unpkg.com/@zxing/browser@latest"></script>
   <style>
     :root {
-      --bg: #f7f6f2; --card: #ffffff; --text: #222222; --muted: #666666;
-      --primary: #0b6b6f; --primary-soft: #d9ecec; --danger: #b42318;
-      --border: #dddddd; --radius: 14px; --shadow: 0 4px 14px rgba(0,0,0,0.06);
+      --bg:#f7f6f2;--card:#fff;--text:#222;--muted:#666;
+      --primary:#0b6b6f;--primary-soft:#d9ecec;--danger:#b42318;
+      --border:#ddd;--radius:14px;--shadow:0 4px 14px rgba(0,0,0,0.06);
     }
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
-    header { position: sticky; top: 0; z-index: 10; background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 18px; }
-    h1 { margin: 0; font-size: 22px; }
-    h2 { margin-top: 0; font-size: 20px; }
-    main { max-width: 820px; margin: 0 auto; padding: 14px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); }
-    .field-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 14px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .hint { font-size: 11px; color: var(--muted); margin: 3px 0 0 0; }
-    form { margin: 0; }
-    input, select { width: 100%; padding: 11px 13px; border-radius: 10px; border: 1px solid var(--border); font-size: 15px; margin: 0; background: #fff; }
-    input:focus, select:focus { outline: 2px solid var(--primary); border-color: var(--primary); }
-    button { width: 100%; padding: 12px; border-radius: 10px; border: none; font-size: 15px; font-weight: bold; cursor: pointer; background: var(--primary); color: white; }
-    button.secondary { background: #e8ecec; color: #222; }
-    button.danger { background: var(--danger); color: white; }
-    button.small { width: auto; padding: 7px 14px; font-size: 13px; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .muted { color: var(--muted); font-size: 14px; }
-    .hidden { display: none; }
-    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-    .toolbar button { flex: 1 1 150px; }
-    .product { border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-top: 12px; background: #fff; }
-    .product-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
-    .product-meta { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
-    .product-stock { font-size: 14px; margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 14px; }
-    .stock-item { display: flex; flex-direction: column; }
-    .stock-label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.4px; }
-    .stock-value { font-size: 18px; font-weight: bold; color: var(--text); }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; margin-right: 5px; margin-bottom: 5px; }
-    .ok { background: #dcfce7; color: #166534; }
-    .warn { background: #fef3c7; color: #92400e; }
-    .late { background: #fee2e2; color: #991b1b; }
-    .info { background: #dbeafe; color: #1e40af; }
-    .gray { background: #f3f4f6; color: #374151; }
-    .product-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    video { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); background: #000; }
-    .status-box { padding: 12px 14px; border-radius: 10px; background: var(--primary-soft); margin-top: 14px; font-size: 14px; color: #0b4a4d; }
-    .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    .edit-form { margin-top: 14px; padding: 16px; background: #f9f9f9; border-radius: 12px; border: 1px solid var(--border); }
-    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } .filters { grid-template-columns: 1fr; } }
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);}
+    header{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--border);padding:14px 18px;}
+    h1{margin:0;font-size:22px;} h2{margin-top:0;font-size:20px;}
+    main{max-width:820px;margin:0 auto;padding:14px;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;box-shadow:var(--shadow);}
+    .field-label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-top:14px;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+    .hint{font-size:11px;color:var(--muted);margin:3px 0 0 0;}
+    form{margin:0;}
+    input,select{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--border);font-size:15px;margin:0;background:#fff;}
+    input:focus,select:focus{outline:2px solid var(--primary);border-color:var(--primary);}
+    button{width:100%;padding:12px;border-radius:10px;border:none;font-size:15px;font-weight:bold;cursor:pointer;background:var(--primary);color:white;}
+    button.secondary{background:#e8ecec;color:#222;}
+    button.danger{background:var(--danger);color:white;}
+    button.small{width:auto;padding:7px 14px;font-size:13px;}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .muted{color:var(--muted);font-size:14px;}
+    .hidden{display:none;}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+    .toolbar button{flex:1 1 150px;}
+    .product{border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:12px;background:#fff;}
+    .product-name{font-size:16px;font-weight:bold;margin-bottom:4px;}
+    .product-meta{font-size:13px;color:var(--muted);margin-bottom:8px;}
+    .product-stock{font-size:14px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:14px;}
+    .stock-item{display:flex;flex-direction:column;}
+    .stock-label{font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:0.4px;}
+    .stock-value{font-size:18px;font-weight:bold;color:var(--text);}
+    .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:bold;margin-right:5px;margin-bottom:5px;}
+    .ok{background:#dcfce7;color:#166534;} .warn{background:#fef3c7;color:#92400e;}
+    .late{background:#fee2e2;color:#991b1b;} .info{background:#dbeafe;color:#1e40af;}
+    .product-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+    video{width:100%;border-radius:12px;margin-top:10px;border:1px solid var(--border);background:#000;}
+    .status-box{padding:12px 14px;border-radius:10px;background:var(--primary-soft);margin-top:14px;font-size:14px;color:#0b4a4d;}
+    .filters{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+    .edit-form{margin-top:14px;padding:16px;background:#f9f9f9;border-radius:12px;border:1px solid var(--border);}
+    @media(max-width:640px){.row{grid-template-columns:1fr;}.filters{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
-
 <header>
   <h1>Dispensa Smart</h1>
   <div class="muted">Gestione dispensa di famiglia</div>
 </header>
-
 <main>
-
   <section class="card" id="authCard">
     <h2>Accesso</h2>
     <form id="authForm">
-      abel class="field-label">Indirizzo email</label>
+      <label class="field-label">Indirizzo email</label>
       <input type="email" id="email" placeholder="es. mario@gmail.com" autocomplete="email" required />
-      abel class="field-label">Password</label>
+      <label class="field-label">Password</label>
       <input type="password" id="password" placeholder="La tua password" autocomplete="current-password" required />
       <div class="toolbar">
         <button type="button" id="loginBtn">Accedi</button>
@@ -77,44 +70,43 @@
     </form>
     <div class="status-box" id="authMsg">Inserisci email e password per accedere.</div>
   </section>
-
   <section class="card hidden" id="appCard">
     <h2>Aggiungi prodotto</h2>
     <form id="productForm">
-      abel class="field-label">Nome prodotto *</label>
+      <label class="field-label">Nome prodotto *</label>
       <input type="text" id="productName" placeholder="Es. Tonno Rio Mare" required />
-      abel class="field-label">Codice a barre (barcode)</label>
+      <label class="field-label">Codice a barre (barcode)</label>
       <input type="text" id="barcode" placeholder="Scansiona oppure digita il codice" />
       <div class="row">
         <div>
-          abel class="field-label">Marca</label>
+          <label class="field-label">Marca</label>
           <input type="text" id="brand" placeholder="Es. Rio Mare, Barilla..." />
         </div>
         <div>
-          abel class="field-label">Categoria</label>
+          <label class="field-label">Categoria</label>
           <input type="text" id="category" placeholder="Es. Scatolame, Pasta..." />
         </div>
       </div>
       <div class="row">
         <div>
-          abel class="field-label">Unità per confezione</label>
+          <label class="field-label">Unita per confezione</label>
           <input type="number" id="unitsPerPack" value="1" min="1" step="1" />
-          <p class="hint">Es. tonno 3pack → scrivi 3. Prodotto singolo → lascia 1.</p>
+          <p class="hint">Es. tonno 3pack - scrivi 3. Prodotto singolo - lascia 1.</p>
         </div>
         <div>
-          abel class="field-label">Scorta minima (unità singole)</label>
+          <label class="field-label">Scorta minima (unita singole)</label>
           <input type="number" id="minStockUnits" value="1" min="0" step="1" />
-          <p class="hint">Avviso quando le unità scendono sotto questa soglia.</p>
+          <p class="hint">Avviso quando le unita scendono sotto questa soglia.</p>
         </div>
       </div>
       <div class="row">
         <div>
-          abel class="field-label">Confezioni da caricare ora</label>
+          <label class="field-label">Confezioni da caricare ora</label>
           <input type="number" id="quantity" value="1" min="1" step="1" />
-          <p class="hint">Es. 2 confezioni da 3 → entrano 6 unità totali.</p>
+          <p class="hint">Es. 2 confezioni da 3 - entrano 6 unita totali.</p>
         </div>
         <div>
-          abel class="field-label">Data di scadenza</label>
+          <label class="field-label">Data di scadenza</label>
           <input type="date" id="expiryDate" />
           <p class="hint">Lascia vuoto se il prodotto non ha scadenza.</p>
         </div>
@@ -131,20 +123,19 @@
     </div>
     <div class="status-box" id="saveMsg">Pronto per aggiungere un prodotto.</div>
   </section>
-
   <section class="card hidden" id="listCard">
     <h2>Prodotti in dispensa</h2>
     <div class="filters">
       <div>
-        abel class="field-label">Cerca per nome / marca / barcode</label>
+        <label class="field-label">Cerca per nome / marca / barcode</label>
         <input type="text" id="searchInput" placeholder="Scrivi per cercare..." />
       </div>
       <div>
-        abel class="field-label">Filtra per categoria</label>
+        <label class="field-label">Filtra per categoria</label>
         <select id="filterCategory"><option value="">Tutte le categorie</option></select>
       </div>
       <div>
-        abel class="field-label">Filtra per scadenza</label>
+        <label class="field-label">Filtra per scadenza</label>
         <select id="filterExpiry">
           <option value="">Tutte</option>
           <option value="expired">Scaduti</option>
@@ -154,437 +145,28 @@
         </select>
       </div>
       <div>
-        abel class="field-label">Ordina per</label>
+        <label class="field-label">Ordina per</label>
         <select id="sortBy">
-          <option value="name">Nome A→Z</option>
-          <option value="expiry">Scadenza più vicina</option>
-          <option value="qty_desc">Quantità maggiore</option>
-          <option value="qty_asc">Quantità minore</option>
+          <option value="name">Nome A-Z</option>
+          <option value="expiry">Scadenza piu vicina</option>
+          <option value="qty_desc">Quantita maggiore</option>
+          <option value="qty_asc">Quantita minore</option>
         </select>
       </div>
     </div>
     <button type="button" id="resetFiltersBtn" class="secondary small" style="margin-bottom:14px;">Reset filtri</button>
     <div id="productList"></div>
   </section>
-
 </main>
 <script>
-  const SUPABASE_URL = "https://ujwhtxhbwtsockwnuvul.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqd2h0eGhid3Rzb2Nrd251dnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNDE1NzYsImV4cCI6MjA5MTcxNzU3Nn0.U-aPCivPbIImm8VeSaYk4GV_IL9OAH80xTZmqAMb5Z0";
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  const authCard = document.getElementById("authCard");
-  const appCard = document.getElementById("appCard");
-  const listCard = document.getElementById("listCard");
-  const authMsg = document.getElementById("authMsg");
-  const saveMsg = document.getElementById("saveMsg");
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  const productNameInput = document.getElementById("productName");
-  const barcodeInput = document.getElementById("barcode");
-  const brandInput = document.getElementById("brand");
-  const categoryInput = document.getElementById("category");
-  const unitsPerPackInput = document.getElementById("unitsPerPack");
-  const minStockUnitsInput = document.getElementById("minStockUnits");
-  const quantityInput = document.getElementById("quantity");
-  const expiryDateInput = document.getElementById("expiryDate");
-  const searchInput = document.getElementById("searchInput");
-  const filterCategory = document.getElementById("filterCategory");
-  const filterExpiry = document.getElementById("filterExpiry");
-  const sortBy = document.getElementById("sortBy");
-  const productList = document.getElementById("productList");
-  const scannerArea = document.getElementById("scannerArea");
-  const video = document.getElementById("video");
-  const registerBtn = document.getElementById("registerBtn");
-  const loginBtn = document.getElementById("loginBtn");
-  const saveBtn = document.getElementById("saveBtn");
-  const scanBtn = document.getElementById("scanBtn");
-  const stopScanBtn = document.getElementById("stopScanBtn");
-  const lookupBarcodeBtn = document.getElementById("lookupBarcodeBtn");
-  const resetFiltersBtn = document.getElementById("resetFiltersBtn");
-
-  let currentUser = null;
-  let householdId = null;
-  let scannerControls = null;
-  let codeReader = null;
-  let cachedProducts = [];
-
-  document.getElementById("authForm").addEventListener("submit", e => e.preventDefault());
-  document.getElementById("productForm").addEventListener("submit", e => e.preventDefault());
-
-  function setAuthMessage(t) { authMsg.textContent = t; }
-  function setSaveMessage(t) { saveMsg.textContent = t; }
-
-  function escapeHtml(v) {
-    return String(v ?? "")
-      .replaceAll("&","&amp;").replaceAll("<","&lt;")
-      .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-  }
-
-  function showApp() {
-    authCard.classList.add("hidden");
-    appCard.classList.remove("hidden");
-    listCard.classList.remove("hidden");
-  }
-
-  function formatDate(d) {
-    if (!d) return "-";
-    const dt = new Date(d);
-    if (isNaN(dt)) return d;
-    return dt.toLocaleDateString("it-IT");
-  }
-
-  function getExpiryBadge(expiryDate) {
-    if (!expiryDate) return "";
-    const today = new Date(); today.setHours(0,0,0,0);
-    const exp = new Date(expiryDate); exp.setHours(0,0,0,0);
-    const diff = Math.ceil((exp - today) / 86400000);
-    if (diff < 0) return `<span class="badge late">Scaduto</span>`;
-    if (diff <= 30) return `<span class="badge warn">Scade tra ${diff} giorni</span>`;
-    if (diff <= 90) return `<span class="badge info">Scade tra ${diff} giorni</span>`;
-    return `<span class="badge ok">Ok</span>`;
-  }
-
-  async function register() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    if (!email || !password) return setAuthMessage("Inserisci email e password.");
-    setAuthMessage("Registrazione in corso...");
-    const { error } = await sb.auth.signUp({ email, password });
-    if (error) return setAuthMessage("Errore: " + error.message);
-    setAuthMessage("Registrazione eseguita. Controlla la tua email e poi accedi.");
-  }
-
-  async function login() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    if (!email || !password) return setAuthMessage("Inserisci email e password.");
-    setAuthMessage("Accesso in corso...");
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) return setAuthMessage("Errore accesso: " + error.message);
-    currentUser = data.user;
-    await ensureProfile();
-    showApp();
-    await loadProducts();
-  }
-
-  async function ensureProfile() {
-    const { data: profile } = await sb.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
-    if (profile && profile.household_id) { householdId = profile.household_id; return; }
-    const { data: hh, error: hhErr } = await sb.from("households").insert([{ name: "Casa" }]).select().single();
-    if (hhErr) { setAuthMessage("Errore household: " + hhErr.message); return; }
-    householdId = hh.id;
-    await sb.from("profiles").upsert([{ id: currentUser.id, household_id: householdId, role: "owner" }]);
-  }
-
-  async function autofillFromBarcode(barcode) {
-    if (!barcode) return;
-    setSaveMessage("Cerco il prodotto dal barcode nel tuo database...");
-    const { data: existing } = await sb.from("products")
-      .select("*").eq("household_id", householdId).eq("barcode", barcode).maybeSingle();
-    if (existing) {
-      productNameInput.value = existing.name || "";
-      brandInput.value = existing.brand || "";
-      categoryInput.value = existing.category || "";
-      unitsPerPackInput.value = existing.units_per_pack || 1;
-      minStockUnitsInput.value = existing.min_stock_units || 1;
-      setSaveMessage("Prodotto trovato nel tuo database. Puoi aggiungere un nuovo lotto.");
-      return;
-    }
-    setSaveMessage("Non trovato nel DB, cerco online...");
-    try {
-      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-      const data = await res.json();
-      if (data && data.status === 1 && data.product) {
-        const p = data.product;
-        if (!productNameInput.value && p.product_name) productNameInput.value = p.product_name;
-        if (!brandInput.value && p.brands) brandInput.value = p.brands.split(",")[0].trim();
-        if (!categoryInput.value && p.categories) categoryInput.value = p.categories.split(",")[0].trim();
-        setSaveMessage("Prodotto trovato online e campi compilati. Salva per memorizzarlo nel tuo database.");
-      } else {
-        setSaveMessage("Barcode letto ma prodotto non trovato online. Compila i campi a mano.");
-      }
-    } catch {
-      setSaveMessage("Barcode letto ma errore nella ricerca online. Compila i campi a mano.");
-    }
-  }
-
-  async function saveProduct() {
-    if (!householdId || !currentUser) return setSaveMessage("Utente non pronto. Rifai il login.");
-    const name = productNameInput.value.trim();
-    if (!name) return setSaveMessage("Inserisci il nome del prodotto.");
-    const barcode = barcodeInput.value.trim() || null;
-    const brand = brandInput.value.trim() || null;
-    const category = categoryInput.value.trim() || null;
-    const unitsPerPack = parseInt(unitsPerPackInput.value) || 1;
-    const minStockUnits = parseInt(minStockUnitsInput.value) || 1;
-    const confezioni = parseInt(quantityInput.value) || 1;
-    const unitaTotali = confezioni * unitsPerPack;
-    const expiryDate = expiryDateInput.value || null;
-
-    setSaveMessage("Salvataggio in corso...");
-
-    let productId = null;
-
-    if (barcode) {
-      const { data: existing } = await sb.from("products")
-        .select("id").eq("household_id", householdId).eq("barcode", barcode).maybeSingle();
-      if (existing) {
-        productId = existing.id;
-        await sb.from("products").update({ name, brand, category, units_per_pack: unitsPerPack, min_stock_units: minStockUnits }).eq("id", productId);
-      }
-    }
-
-    if (!productId) {
-      const { data: newP, error: pErr } = await sb.from("products")
-        .insert([{ household_id: householdId, name, barcode, brand, category, units_per_pack: unitsPerPack, min_stock_units: minStockUnits }])
-        .select().single();
-      if (pErr) return setSaveMessage("Errore prodotto: " + pErr.message);
-      productId = newP.id;
-    }
-
-    const { data: lot, error: lotErr } = await sb.from("lots")
-      .insert([{ product_id: productId, quantity: unitaTotali, expiry_date: expiryDate }])
-      .select().single();
-    if (lotErr) return setSaveMessage("Errore lotto: " + lotErr.message);
-
-    const { error: mvErr } = await sb.from("movements").insert([{
-      household_id: householdId, product_id: productId, lot_id: lot.id,
-      movement_type: "load", quantity: unitaTotali,
-      note: `Carico ${confezioni} conf. x ${unitsPerPack} unità`, created_by: currentUser.id
-    }]);
-    if (mvErr) return setSaveMessage("Prodotto salvato ma errore movimento: " + mvErr.message);
-
-    document.getElementById("productForm").reset();
-    unitsPerPackInput.value = 1;
-    minStockUnitsInput.value = 1;
-    quantityInput.value = 1;
-    setSaveMessage("Prodotto salvato correttamente.");
-    await loadProducts();
-  }
-
-  async function loadProducts() {
-    if (!householdId) return;
-    const { data, error } = await sb.from("products").select(`
-      id, name, barcode, brand, category, units_per_pack, min_stock_units, created_at,
-      lots ( id, quantity, expiry_date )
-    `).eq("household_id", householdId).order("name", { ascending: true });
-    if (error) { productList.innerHTML = "<p>Errore: " + error.message + "</p>"; return; }
-    cachedProducts = data || [];
-    populateCategoryFilter();
-    renderProducts();
-  }
-
-  function populateCategoryFilter() {
-    const cats = [...new Set(cachedProducts.map(p => p.category).filter(Boolean))].sort();
-    const current = filterCategory.value;
-    filterCategory.innerHTML = '<option value="">Tutte le categorie</option>';
-    cats.forEach(c => {
-      const o = document.createElement("option");
-      o.value = c; o.textContent = c;
-      if (c === current) o.selected = true;
-      filterCategory.appendChild(o);
-    });
-  }
-  if (diff <= 30) return `<span class="badge late">Scade tra ${diff} giorni</span>`;
-    if (diff <= 90) return `<span class="badge warn">Scade tra ${diff} giorni</span>`;
-    return `<span class="badge ok">Ok</span>`;
-  }
-
-  async function register() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    if (!email || !password) return setAuthMessage("Inserisci email e password.");
-    setAuthMessage("Registrazione in corso...");
-    const { error } = await sb.auth.signUp({ email, password });
-    if (error) return setAuthMessage("Errore: " + error.message);
-    setAuthMessage("Registrazione eseguita. Controlla email e poi accedi.");
-  }
-
-  async function login() {
-    const email = emailInput.value.trim();
-    const password = passwordInput.value.trim();
-    if (!email || !password) return setAuthMessage("Inserisci email e password.");
-    setAuthMessage("Accesso in corso...");
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) return setAuthMessage("Errore accesso: " + error.message);
-    currentUser = data.user;
-    await ensureProfile();
-    showApp();
-    await loadProducts();
-  }
-
-  async function ensureProfile() {
-    const { data: profile } = await sb.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
-    if (profile && profile.household_id) { householdId = profile.household_id; return; }
-    const { data: hh, error: hhErr } = await sb.from("households").insert([{ name: "Casa" }]).select().single();
-    if (hhErr) { setAuthMessage("Errore household: " + hhErr.message); return; }
-    householdId = hh.id;
-    await sb.from("profiles").upsert([{ id: currentUser.id, household_id: householdId, role: "owner" }]);
-  }
-
-  async function autofillFromBarcode(barcode) {
-    if (!barcode) return;
-    setSaveMessage("Cerco il prodotto nel tuo database...");
-    const { data: existing } = await sb.from("products").select("*").eq("household_id", householdId).eq("barcode", barcode).maybeSingle();
-    if (existing) {
-      productNameInput.value = existing.name || "";
-      brandInput.value = existing.brand || "";
-      categoryInput.value = existing.category || "";
-      unitsPerPackInput.value = existing.units_per_pack || 1;
-      minStockUnitsInput.value = existing.min_stock_units || 1;
-      setSaveMessage("Prodotto trovato nel tuo database. Puoi aggiungere un nuovo lotto.");
-      return;
-    }
-    setSaveMessage("Non trovato nel DB locale, cerco online...");
-    try {
-      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-      const data = await res.json();
-      if (data && data.status === 1 && data.product) {
-        const p = data.product;
-        if (!productNameInput.value && p.product_name) productNameInput.value = p.product_name;
-        if (!brandInput.value && p.brands) brandInput.value = p.brands.split(",")[0].trim();
-        if (!categoryInput.value && p.categories) categoryInput.value = p.categories.split(",")[0].trim();
-        setSaveMessage("Prodotto trovato online. Salva per memorizzarlo nel tuo database.");
-      } else {
-        setSaveMessage("Barcode letto ma non trovato online. Compila i campi a mano.");
-      }
-    } catch { setSaveMessage("Errore ricerca online. Compila i campi a mano."); }
-  }
-
-  async function saveProduct() {
-    if (!householdId || !currentUser) return setSaveMessage("Utente non pronto. Rifai il login.");
-    const name = productNameInput.value.trim();
-    if (!name) return setSaveMessage("Inserisci il nome del prodotto.");
-    const barcode = barcodeInput.value.trim() || null;
-    const brand = brandInput.value.trim() || null;
-    const category = categoryInput.value.trim() || null;
-    const unitsPerPack = parseInt(unitsPerPackInput.value) || 1;
-    const minStockUnits = parseInt(minStockUnitsInput.value) || 1;
-    const confezioni = parseInt(quantityInput.value) || 1;
-    const unitaTotali = confezioni * unitsPerPack;
-    const expiryDate = expiryDateInput.value || null;
-    setSaveMessage("Salvataggio in corso...");
-    let productId = null;
-    if (barcode) {
-      const { data: existing } = await sb.from("products").select("id").eq("household_id", householdId).eq("barcode", barcode).maybeSingle();
-      if (existing) {
-        productId = existing.id;
-        await sb.from("products").update({ name, brand, category, units_per_pack: unitsPerPack, min_stock_units: minStockUnits }).eq("id", productId);
-      }
-    }
-    if (!productId) {
-      const { data: newP, error: pErr } = await sb.from("products").insert([{ household_id: householdId, name, barcode, brand, category, units_per_pack: unitsPerPack, min_stock_units: minStockUnits }]).select().single();
-      if (pErr) return setSaveMessage("Errore prodotto: " + pErr.message);
-      productId = newP.id;
-    }
-    const { data: lot, error: lotErr } = await sb.from("lots").insert([{ product_id: productId, quantity: unitaTotali, expiry_date: expiryDate }]).select().single();
-    if (lotErr) return setSaveMessage("Errore lotto: " + lotErr.message);
-    const { error: mvErr } = await sb.from("movements").insert([{ household_id: householdId, product_id: productId, lot_id: lot.id, movement_type: "load", quantity: unitaTotali, note: `Carico ${confezioni} conf. x ${unitsPerPack} unità`, created_by: currentUser.id }]);
-    if (mvErr) return setSaveMessage("Salvato ma errore movimento: " + mvErr.message);
-    document.getElementById("productForm").reset();
-    unitsPerPackInput.value = 1; minStockUnitsInput.value = 1; quantityInput.value = 1;
-    setSaveMessage("Prodotto salvato correttamente.");
-    await loadProducts();
-  }
-
-  async function loadProducts() {
-    if (!householdId) return;
-    const { data, error } = await sb.from("products").select(`id,name,barcode,brand,category,units_per_pack,min_stock_units,created_at,lots(id,quantity,expiry_date)`).eq("household_id", householdId).order("name", { ascending: true });
-    if (error) { productList.innerHTML = "<p>Errore: " + error.message + "</p>"; return; }
-    cachedProducts = data || [];
-    populateCategoryFilter();
-    renderProducts();
-  }
-
-  function populateCategoryFilter() {
-    const cats = [...new Set(cachedProducts.map(p => p.category).filter(Boolean))].sort();
-    const current = filterCategory.value;
-    filterCategory.innerHTML = '<option value="">Tutte le categorie</option>';
-    cats.forEach(c => {
-      const o = document.createElement("option");
-      o.value = c; o.textContent = c;
-      if (c === current) o.selected = true;
-      filterCategory.appendChild(o);
-    });
-  }
-
-  function renderProducts() {
-    const term = searchInput.value.trim().toLowerCase();
-    const catFilter = filterCategory.value;
-    const expiryFilter = filterExpiry.value;
-    const sort = sortBy.value;
-    const today = new Date(); today.setHours(0,0,0,0);
-    let list = cachedProducts.filter(p => {
-      const text = [p.name,p.barcode,p.brand,p.category].join(" ").toLowerCase();
-      if (term && !text.includes(term)) return false;
-      if (catFilter && p.category !== catFilter) return false;
-      if (expiryFilter) {
-        const lots = p.lots || [];
-        const withExp = lots.filter(l => l.expiry_date);
-        const nearest = [...withExp].sort((a,b) => new Date(a.expiry_date)-new Date(b.expiry_date))[0];
-        if (expiryFilter === "none") { if (withExp.length > 0) return false; }
-        else if (expiryFilter === "expired") { if (!nearest || new Date(nearest.expiry_date) >= today) return false; }
-        else {
-          const days = parseInt(expiryFilter);
-          if (!nearest) return false;
-          const diff = Math.ceil((new Date(nearest.expiry_date)-today)/86400000);
-          if (diff < 0 || diff > days) return false;
-        }
-      }
-      return true;
-    });
-    list.sort((a,b) => {
-      const tA = (a.lots||[]).reduce((s,l)=>s+Number(l.quantity||0),0);
-      const tB = (b.lots||[]).reduce((s,l)=>s+Number(l.quantity||0),0);
-      const nA = (a.lots||[]).filter(l=>l.expiry_date).sort((x,y)=>new Date(x.expiry_date)-new Date(y.expiry_date))[0];
-      const nB = (b.lots||[]).filter(l=>l.expiry_date).sort((x,y)=>new Date(x.expiry_date)-new Date(y.expiry_date))[0];
-      if (sort==="name") return (a.name||"").localeCompare(b.name||"","it");
-      if (sort==="expiry") { const da=nA?new Date(nA.expiry_date).getTime():9999999999999; const db=nB?new Date(nB.expiry_date).getTime():9999999999999; return da-db; }
-      if (sort==="qty_desc") return tB-tA;
-      if (sort==="qty_asc") return tA-tB;
-      return 0;
-    });
-    if (!list.length) { productList.innerHTML="<p class='muted'>Nessun prodotto trovato.</p>"; return; }
-    productList.innerHTML = list.map(p => {
-      const lots = p.lots||[];
-      const totalUnits = lots.reduce((s,l)=>s+Number(l.quantity||0),0);
-      const unitsPerPack = p.units_per_pack||1;
-      const minStock = p.min_stock_units||1;
-      const nearest = [...lots].filter(l=>l.expiry_date).sort((a,b)=>new Date(a.expiry_date)-new Date(b.expiry_date))[0];
-      const confezioniEquiv = unitsPerPack>1 ? Math.floor(totalUnits/unitsPerPack) : null;
-      let badges = "";
-      if (totalUnits<=0) badges+=`<span class="badge late">Esaurito</span>`;
-      else if (totalUnits<=minStock) badges+=`<span class="badge warn">Sotto scorta minima</span>`;
-      else badges+=`<span class="badge ok">Disponibile</span>`;
-      if (nearest) badges+=getExpiryBadge(nearest.expiry_date);
-      return `<div class="product" id="prod-${p.id}">
-        <div class="product-name">${escapeHtml(p.name)}</div>
-        <div class="product-meta">
-          ${p.brand?`<span>Marca: <strong>${escapeHtml(p.brand)}</strong></span> &nbsp;`:""}
-          ${p.category?`<span>Categoria: <strong>${escapeHtml(p.category)}</strong></span> &nbsp;`:""}
-          ${p.barcode?`<span>Barcode: <strong>${escapeHtml(p.barcode)}</strong></span>`:""}
-        </div>
-        <div class="product-stock">
-          <div class="stock-item"><span class="stock-label">Unità disponibili</span><span class="stock-value">${totalUnits}</span></div>
-          ${confezioniEquiv!==null?`<div class="stock-item"><span class="stock-label">Confezioni equiv.</span><span class="stock-value">${confezioniEquiv}</span></div>`:""}
-          <div class="stock-item"><span class="stock-label">Unità per conf.</span><span class="stock-value">${unitsPerPack}</span></div>
-          <div class="stock-item"><span class="stock-label">Scorta minima</span><span class="stock-value">${minStock}</span></div>
-          <div class="stock-item"><span class="stock-label">Scadenza vicina</span><span class="stock-value" style="font-size:14px;">${nearest?formatDate(nearest.expiry_date):"-"}</span></div>
-        </div>
-        <div>${badges}</div>
-        <div class="product-actions">
-          <button class="small" onclick="quickAdd('${p.id}')">+1 Confezione</button>
-          <button class="small secondary" onclick="quickRemove('${p.id}')">-1 Unità</button>
-          <button class="small secondary" onclick="toggleEdit('${p.id}')">Modifica</button>
-          <button class="small danger" onclick="deleteProduct('${p.id}')">Elimina</button>
-        </div>
-        <div class="edit-form hidden" id="edit-${p.id}">
-          abel class="field-label">Nome prodotto</label>
-          <input type="text" id="edit-name-${p.id}" value="${escapeHtml(p.name)}" />
-          abel class="field-label">Marca</label>
-          <input type="text" id="edit-brand-${p.id}" value="${escapeHtml(p.brand||"")}" />
-          abel class="field-label">Categoria</label>
-          <input type="text" id="edit-category-${p.id}" value="${escapeHtml(p.category||"")}" />
-          abel class="field-label">Codice a barre (barcode)
-          </label>
+const SUPABASE_URL="INCOLLA_QUI_IL_TUO_SUPABASE_URL";
+const SUPABASE_ANON_KEY="INCOLLA_QUI_LA_TUA_ANON_KEY";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const authCard=document.getElementById("authCard"),appCard=document.getElementById("appCard"),listCard=document.getElementById("listCard"),authMsg=document.getElementById("authMsg"),saveMsg=document.getElementById("saveMsg"),emailInput=document.getElementById("email"),passwordInput=document.getElementById("password"),productNameInput=document.getElementById("productName"),barcodeInput=document.getElementById("barcode"),brandInput=document.getElementById("brand"),categoryInput=document.getElementById("category"),unitsPerPackInput=document.getElementById("unitsPerPack"),minStockUnitsInput=document.getElementById("minStockUnits"),quantityInput=document.getElementById("quantity"),expiryDateInput=document.getElementById("expiryDate"),searchInput=document.getElementById("searchInput"),filterCategory=document.getElementById("filterCategory"),filterExpiry=document.getElementById("filterExpiry"),sortBy=document.getElementById("sortBy"),productList=document.getElementById("productList"),scannerArea=document.getElementById("scannerArea"),video=document.getElementById("video"),registerBtn=document.getElementById("registerBtn"),loginBtn=document.getElementById("loginBtn"),saveBtn=document.getElementById("saveBtn"),scanBtn=document.getElementById("scanBtn"),stopScanBtn=document.getElementById("stopScanBtn"),lookupBarcodeBtn=document.getElementById("lookupBarcodeBtn"),resetFiltersBtn=document.getElementById("resetFiltersBtn");let currentUser=null,householdId=null,scannerControls=null,codeReader=null,cachedProducts=[];
+document.getElementById("authForm").addEventListener("submit",e=>e.preventDefault());
+document.getElementById("productForm").addEventListener("submit",e=>e.preventDefault());
+function setAuthMessage(t){authMsg.textContent=t}function setSaveMessage(t){saveMsg.textContent=t}function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}function showApp(){authCard.classList.add('hidden');appCard.classList.remove('hidden');listCard.classList.remove('hidden')}function formatDate(d){if(!d)return'-';const dt=new Date(d);if(isNaN(dt))return d;return dt.toLocaleDateString('it-IT')}function getExpiryBadge(expiryDate){if(!expiryDate)return'';const today=new Date();today.setHours(0,0,0,0);const exp=new Date(expiryDate);exp.setHours(0,0,0,0);const diff=Math.ceil((exp-today)/864e5);if(diff<0)return'<span class="badge late">Scaduto</span>';if(diff<=30)return`<span class="badge late">Scade tra ${diff} giorni</span>`;if(diff<=90)return`<span class="badge warn">Scade tra ${diff} giorni</span>`;return'<span class="badge ok">Ok</span>'}async function register(){const email=emailInput.value.trim(),password=passwordInput.value.trim();if(!email||!password)return setAuthMessage('Inserisci email e password.');setAuthMessage('Registrazione in corso...');const{error}=await sb.auth.signUp({email,password});if(error)return setAuthMessage('Errore: '+error.message);setAuthMessage('Registrazione eseguita. Controlla email e poi accedi.')}async function login(){const email=emailInput.value.trim(),password=passwordInput.value.trim();if(!email||!password)return setAuthMessage('Inserisci email e password.');setAuthMessage('Accesso in corso...');const{data,error}=await sb.auth.signInWithPassword({email,password});if(error)return setAuthMessage('Errore accesso: '+error.message);currentUser=data.user;await ensureProfile();showApp();await loadProducts()}async function ensureProfile(){const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();if(profile&&profile.household_id){householdId=profile.household_id;return}const{data:hh,error:hhErr}=await sb.from('households').insert([{name:'Casa'}]).select().single();if(hhErr){setAuthMessage('Errore household: '+hhErr.message);return}householdId=hh.id;await sb.from('profiles').upsert([{id:currentUser.id,household_id:householdId,role:'owner'}])}async function autofillFromBarcode(barcode){if(!barcode)return;setSaveMessage('Cerco il prodotto nel tuo database...');const{data:existing}=await sb.from('products').select('*').eq('household_id',householdId).eq('barcode',barcode).maybeSingle();if(existing){productNameInput.value=existing.name||'';brandInput.value=existing.brand||'';categoryInput.value=existing.category||'';unitsPerPackInput.value=existing.units_per_pack||1;minStockUnitsInput.value=existing.min_stock_units||1;setSaveMessage('Prodotto trovato nel tuo database. Puoi aggiungere un nuovo lotto.');return}setSaveMessage('Non trovato nel DB locale, cerco online...');try{const res=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);const data=await res.json();if(data&&data.status===1&&data.product){const p=data.product;if(!productNameInput.value&&p.product_name)productNameInput.value=p.product_name;if(!brandInput.value&&p.brands)brandInput.value=p.brands.split(',')[0].trim();if(!categoryInput.value&&p.categories)categoryInput.value=p.categories.split(',')[0].trim();setSaveMessage('Prodotto trovato online. Salva per memorizzarlo nel tuo database.')}else{setSaveMessage('Barcode letto ma non trovato online. Compila i campi a mano.')}}catch{setSaveMessage('Errore ricerca online. Compila i campi a mano.')}}async function saveProduct(){if(!householdId||!currentUser)return setSaveMessage('Utente non pronto. Rifai il login.');const name=productNameInput.value.trim();if(!name)return setSaveMessage('Inserisci il nome del prodotto.');const barcode=barcodeInput.value.trim()||null,brand=brandInput.value.trim()||null,category=categoryInput.value.trim()||null,unitsPerPack=parseInt(unitsPerPackInput.value)||1,minStockUnits=parseInt(minStockUnitsInput.value)||1,confezioni=parseInt(quantityInput.value)||1,unitaTotali=confezioni*unitsPerPack,expiryDate=expiryDateInput.value||null;setSaveMessage('Salvataggio in corso...');let productId=null;if(barcode){const{data:existing}=await sb.from('products').select('id').eq('household_id',householdId).eq('barcode',barcode).maybeSingle();if(existing){productId=existing.id;await sb.from('products').update({name,brand,category,units_per_pack:unitsPerPack,min_stock_units:minStockUnits}).eq('id',productId)}}if(!productId){const{data:newP,error:pErr}=await sb.from('products').insert([{household_id:householdId,name,barcode,brand,category,units_per_pack:unitsPerPack,min_stock_units:minStockUnits}]).select().single();if(pErr)return setSaveMessage('Errore prodotto: '+pErr.message);productId=newP.id}const{data:lot,error:lotErr}=await sb.from('lots').insert([{product_id:productId,quantity:unitaTotali,expiry_date:expiryDate}]).select().single();if(lotErr)return setSaveMessage('Errore lotto: '+lotErr.message);const{error:mvErr}=await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'load',quantity:unitaTotali,note:`Carico ${confezioni} conf. x ${unitsPerPack} unita`,created_by:currentUser.id}]);if(mvErr)return setSaveMessage('Salvato ma errore movimento: '+mvErr.message);document.getElementById('productForm').reset();unitsPerPackInput.value=1;minStockUnitsInput.value=1;quantityInput.value=1;setSaveMessage('Prodotto salvato correttamente.');await loadProducts()}async function loadProducts(){if(!householdId)return;const{data,error}=await sb.from('products').select(`id,name,barcode,brand,category,units_per_pack,min_stock_units,created_at,lots(id,quantity,expiry_date)`).eq('household_id',householdId).order('name',{ascending:true});if(error){productList.innerHTML='<p>Errore: '+error.message+'</p>';return}cachedProducts=data||[];populateCategoryFilter();renderProducts()}function populateCategoryFilter(){const cats=[...new Set(cachedProducts.map(p=>p.category).filter(Boolean))].sort();const current=filterCategory.value;filterCategory.innerHTML='<option value="">Tutte le categorie</option>';cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;if(c===current)o.selected=true;filterCategory.appendChild(o)})}
+function renderProducts(){const term=searchInput.value.trim().toLowerCase(),catFilter=filterCategory.value,expiryFilter=filterExpiry.value,sort=sortBy.value,today=new Date();today.setHours(0,0,0,0);let list=cachedProducts.filter(p=>{const text=[p.name,p.barcode,p.brand,p.category].join(' ').toLowerCase();if(term&&!text.includes(term))return false;if(catFilter&&p.category!==catFilter)return false;if(expiryFilter){const lots=p.lots||[],withExp=lots.filter(l=>l.expiry_date),nearest=[...withExp].sort((a,b)=>new Date(a.expiry_date)-new Date(b.expiry_date))[0];if(expiryFilter==='none'){if(withExp.length>0)return false}else if(expiryFilter==='expired'){if(!nearest||new Date(nearest.expiry_date)>=today)return false}else{const days=parseInt(expiryFilter);if(!nearest)return false;const diff=Math.ceil((new Date(nearest.expiry_date)-today)/864e5);if(diff<0||diff>days)return false}}return true});list.sort((a,b)=>{const tA=(a.lots||[]).reduce((s,l)=>s+Number(l.quantity||0),0),tB=(b.lots||[]).reduce((s,l)=>s+Number(l.quantity||0),0),nA=(a.lots||[]).filter(l=>l.expiry_date).sort((x,y)=>new Date(x.expiry_date)-new Date(y.expiry_date))[0],nB=(b.lots||[]).filter(l=>l.expiry_date).sort((x,y)=>new Date(x.expiry_date)-new Date(y.expiry_date))[0];if(sort==='name')return(a.name||'').localeCompare(b.name||'','it');if(sort==='expiry'){const da=nA?new Date(nA.expiry_date).getTime():9999999999999,db=nB?new Date(nB.expiry_date).getTime():9999999999999;return da-db}if(sort==='qty_desc')return tB-tA;if(sort==='qty_asc')return tA-tB;return 0});if(!list.length){productList.innerHTML='<p class="muted">Nessun prodotto trovato.</p>';return}productList.innerHTML=list.map(p=>{const lots=p.lots||[],totalUnits=lots.reduce((s,l)=>s+Number(l.quantity||0),0),unitsPerPack=p.units_per_pack||1,minStock=p.min_stock_units||1,nearest=[...lots].filter(l=>l.expiry_date).sort((a,b)=>new Date(a.expiry_date)-new Date(b.expiry_date))[0],confezioniEquiv=unitsPerPack>1?Math.floor(totalUnits/unitsPerPack):null;let badges='';if(totalUnits<=0)badges+='<span class="badge late">Esaurito</span>';else if(totalUnits<=minStock)badges+='<span class="badge warn">Sotto scorta minima</span>';else badges+='<span class="badge ok">Disponibile</span>';if(nearest)badges+=getExpiryBadge(nearest.expiry_date);return`<div class="product" id="prod-${p.id}"><div class="product-name">${escapeHtml(p.name)}</div><div class="product-meta">${p.brand?`<span>Marca: <strong>${escapeHtml(p.brand)}</strong></span> &nbsp;`:''}${p.category?`<span>Categoria: <strong>${escapeHtml(p.category)}</strong></span> &nbsp;`:''}${p.barcode?`<span>Barcode: <strong>${escapeHtml(p.barcode)}</strong></span>`:''}</div><div class="product-stock"><div class="stock-item"><span class="stock-label">Unita disponibili</span><span class="stock-value">${totalUnits}</span></div>${confezioniEquiv!==null?`<div class="stock-item"><span class="stock-label">Confezioni equiv.</span><span class="stock-value">${confezioniEquiv}</span></div>`:''}< div class="stock-item"><span class="stock-label">Unita per conf.</span><span class="stock-value">${unitsPerPack}</span></div><div class="stock-item"><span class="stock-label">Scorta minima</span><span class="stock-value">${minStock}</span></div><div class="stock-item"><span class="stock-label">Scadenza vicina</span><span class="stock-value" style="font-size:14px;">${nearest?formatDate(nearest.expiry_date):'-'}</span></div></div><div>${badges}</div><div class="product-actions"><button class="small" onclick="quickAdd('${p.id}')">+1 Confezione</button><button class="small secondary" onclick="quickRemove('${p.id}')"  >-1 Unita</button><button class="small secondary" onclick="toggleEdit('${p.id}')">Modifica</button><button class="small danger" onclick="deleteProduct('${p.id}')">Elimina</button></div><div class="edit-form hidden" id="edit-${p.id}"><label class="field-label">Nome prodotto</label><input type="text" id="edit-name-${p.id}" value="${escapeHtml(p.name)}" /><label class="field-label">Marca</label><input type="text" id="edit-brand-${p.id}" value="${escapeHtml(p.brand||'')}" /><label class="field-label">Categoria</label><input type="text" id="edit-category-${p.id}" value="${escapeHtml(p.category||'')}" /><label class="field-label">Codice a barre (barcode)</label><input type="text" id="edit-barcode-${p.id}" value="${escapeHtml(p.barcode||'')}" /><div class="row"><div><label class="field-label">Unita per confezione</label><input type="number" id="edit-upp-${p.id}" value="${unitsPerPack}" min="1" step="1" /><p class="hint">Es. tonno 3pack - 3</p></div><div><label class="field-label">Scorta minima (unita singole)</label><input type="number" id="edit-min-${p.id}" value="${minStock}" min="0" step="1" /><p class="hint">Avviso sotto questa soglia</p></div></div><div class="toolbar"><button class="small" onclick="saveEdit('${p.id}')">Salva modifiche</button><button class="small secondary" onclick="toggleEdit('${p.id}')">Annulla</button></div></div></div>`}).join('')}function toggleEdit(id){document.getElementById('edit-'+id).classList.toggle('hidden')}async function saveEdit(id){const name=document.getElementById('edit-name-'+id).value.trim(),brand=document.getElementById('edit-brand-'+id).value.trim()||null,category=document.getElementById('edit-category-'+id).value.trim()||null,barcode=document.getElementById('edit-barcode-'+id).value.trim()||null,upp=parseInt(document.getElementById('edit-upp-'+id).value)||1,min=parseInt(document.getElementById('edit-min-'+id).value)||1;if(!name)return alert('Il nome e obbligatorio.');const{error}=await sb.from('products').update({name,brand,category,barcode,units_per_pack:upp,min_stock_units:min}).eq('id',id);if(error)return alert('Errore modifica: '+error.message);await loadProducts()}async function quickAdd(productId){const p=cachedProducts.find(x=>x.id===productId);if(!p)return alert('Prodotto non trovato.');const unitsPerPack=p.units_per_pack||1,dateRaw=prompt('Data scadenza nuova confezione?\nFormato GG-MM-AAAA\nLascia vuoto se non serve','');let isoDate=null;if(dateRaw&&dateRaw.trim()){const parts=dateRaw.trim().replaceAll('/','- ').split('-');if(parts.length===3&&parts[2].length===4)isoDate=`${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;else return alert('Data non valida. Usa GG-MM-AAAA')}const{data:lot,error:lotErr}=await sb.from('lots').insert([{product_id:productId,quantity:unitsPerPack,expiry_date:isoDate}]).select().single();if(lotErr)return alert('Errore carico: '+lotErr.message);await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'load',quantity:unitsPerPack,note:`Carico rapido +1 conf. (${unitsPerPack} unita)`,created_by:currentUser.id}]);await loadProducts()}async function quickRemove(productId){const p=cachedProducts.find(x=>x.id===productId);if(!p)return alert('Prodotto non trovato.');const lots=(p.lots||[]).filter(l=>Number(l.quantity||0)>0);if(!lots.length)return alert('Nessuna unita disponibile da scaricare.');lots.sort((a,b)=>{const da=a.expiry_date?new Date(a.expiry_date).getTime():9999999999999,db=b.expiry_date?new Date(b.expiry_date).getTime():9999999999999;return da-db});const lot=lots[0],newQty=Number(lot.quantity)-1;const{error:updErr}=await sb.from('lots').update({quantity:newQty}).eq('id',lot.id);if(updErr)return alert('Errore scarico: '+updErr.message);await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'unload',quantity:1,note:'Scarico rapido -1 unita',created_by:currentUser.id}]);await loadProducts()}async function deleteProduct(productId){if(!confirm('Sei sicuro di voler eliminare questo prodotto?\nVerranno eliminati anche tutti i lotti e movimenti collegati.'))return;await sb.from('movements').delete().eq('product_id',productId);await sb.from('lots').delete().eq('product_id',productId);const{error}=await sb.from('products').delete().eq('id',productId);if(error)return alert('Errore eliminazione: '+error.message);await loadProducts()}async function startScanner(){if(typeof ZXingBrowser==='undefined')return alert('Libreria scanner non caricata.');scannerArea.classList.remove('hidden');try{codeReader=new ZXingBrowser.BrowserMultiFormatReader();const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();if(!devices||!devices.length)return alert('Nessuna fotocamera trovata.');let deviceId=devices[0].deviceId;const rear=devices.find(d=>(d.label||'').toLowerCase().match(/back|rear|environment/));if(rear)deviceId=rear.deviceId;scannerControls=await codeReader.decodeFromVideoDevice(deviceId,video,result=>{if(result){barcodeInput.value=result.text;stopScanner();autofillFromBarcode(result.text)}})}catch(err){alert('Errore scanner: '+err.message)}}function stopScanner(){scannerArea.classList.add('hidden');if(scannerControls?.stop)scannerControls.stop();if(codeReader?.reset)codeReader.reset();scannerControls=null;codeReader=null}async function checkSession(){const{data}=await sb.auth.getSession();if(data?.session?.user){currentUser=data.session.user;await ensureProfile();showApp();await loadProducts()}}loginBtn.addEventListener('click',login);registerBtn.addEventListener('click',register);saveBtn.addEventListener('click',saveProduct);scanBtn.addEventListener('click',startScanner);stopScanBtn.addEventListener('click',stopScanner);lookupBarcodeBtn.addEventListener('click',()=>{const code=barcodeInput.value.trim();if(!code)return alert('Inserisci o scansiona prima un barcode.');autofillFromBarcode(code)});searchInput.addEventListener('input',renderProducts);filterCategory.addEventListener('change',renderProducts);filterExpiry.addEventListener('change',renderProducts);sortBy.addEventListener('change',renderProducts);resetFiltersBtn.addEventListener('click',()=>{searchInput.value='';filterCategory.value='';filterExpiry.value='';sortBy.value='name';renderProducts()});checkSession();
+</script>
+</body>
+</html>
