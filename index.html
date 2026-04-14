@@ -47,6 +47,20 @@
     .status-box{padding:12px 14px;border-radius:10px;background:var(--primary-soft);margin-top:14px;font-size:14px;color:#0b4a4d;}
     .filters{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
     .edit-form{margin-top:14px;padding:16px;background:#f9f9f9;border-radius:12px;border:1px solid var(--border);}
+    
+    /* Modal Lotti */
+    .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;padding:20px;}
+    .modal-overlay.active{display:flex;}
+    .modal-content{background:white;border-radius:16px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+    .modal-header h3{margin:0;font-size:20px;}
+    .modal-close{background:none;border:none;font-size:28px;cursor:pointer;color:var(--muted);padding:0;width:auto;line-height:1;}
+    .modal-close:hover{color:var(--text);}
+    .lot-item{border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;background:#fafafa;}
+    .lot-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .lot-info{font-size:14px;color:var(--muted);margin-bottom:4px;}
+    .lot-actions{display:flex;gap:6px;margin-top:8px;}
+    
     @media(max-width:640px){.row{grid-template-columns:1fr;}.filters{grid-template-columns:1fr;}}
     /* Modal styles */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:1000;}
@@ -75,9 +89,9 @@
   <section class="card" id="authCard">
     <h2>Accesso</h2>
     <form id="authForm">
-      <label class="field-label">Indirizzo email</label>
+      abel class="field-label">Indirizzo email</label>
       <input type="email" id="email" placeholder="es. mario@gmail.com" autocomplete="email" required />
-      <label class="field-label">Password</label>
+      abel class="field-label">Password</label>
       <input type="password" id="password" placeholder="La tua password" autocomplete="current-password" required />
       <div class="toolbar">
         <button type="button" id="loginBtn">Accedi</button>
@@ -86,43 +100,44 @@
     </form>
     <div class="status-box" id="authMsg">Inserisci email e password per accedere.</div>
   </section>
+
   <section class="card hidden" id="appCard">
     <h2>Aggiungi prodotto</h2>
     <form id="productForm">
-      <label class="field-label">Nome prodotto *</label>
+      abel class="field-label">Nome prodotto *</label>
       <input type="text" id="productName" placeholder="Es. Tonno Rio Mare" required />
-      <label class="field-label">Codice a barre (barcode)</label>
+      abel class="field-label">Codice a barre (barcode)</label>
       <input type="text" id="barcode" placeholder="Scansiona oppure digita il codice" />
       <div class="row">
         <div>
-          <label class="field-label">Marca</label>
+          abel class="field-label">Marca</label>
           <input type="text" id="brand" placeholder="Es. Rio Mare, Barilla..." />
         </div>
         <div>
-          <label class="field-label">Categoria</label>
+          abel class="field-label">Categoria</label>
           <input type="text" id="category" placeholder="Es. Scatolame, Pasta..." />
         </div>
       </div>
       <div class="row">
         <div>
-          <label class="field-label">Unita per confezione</label>
+          abel class="field-label">Unita per confezione</label>
           <input type="number" id="unitsPerPack" value="1" min="1" step="1" />
           <p class="hint">Es. tonno 3pack - scrivi 3. Prodotto singolo - lascia 1.</p>
         </div>
         <div>
-          <label class="field-label">Scorta minima (unita singole)</label>
+          abel class="field-label">Scorta minima (unita singole)</label>
           <input type="number" id="minStockUnits" value="1" min="0" step="1" />
           <p class="hint">Avviso quando le unita scendono sotto questa soglia.</p>
         </div>
       </div>
       <div class="row">
         <div>
-          <label class="field-label">Confezioni da caricare ora</label>
+          abel class="field-label">Confezioni da caricare ora</label>
           <input type="number" id="quantity" value="1" min="1" step="1" />
           <p class="hint">Es. 2 confezioni da 3 - entrano 6 unita totali.</p>
         </div>
         <div>
-          <label class="field-label">Data di scadenza</label>
+          abel class="field-label">Data di scadenza</label>
           <input type="date" id="expiryDate" />
           <p class="hint">Lascia vuoto se il prodotto non ha scadenza.</p>
         </div>
@@ -139,19 +154,20 @@
     </div>
     <div class="status-box" id="saveMsg">Pronto per aggiungere un prodotto.</div>
   </section>
+
   <section class="card hidden" id="listCard">
     <h2>Prodotti in dispensa</h2>
     <div class="filters">
       <div>
-        <label class="field-label">Cerca per nome / marca / barcode</label>
+        abel class="field-label">Cerca per nome / marca / barcode</label>
         <input type="text" id="searchInput" placeholder="Scrivi per cercare..." />
       </div>
       <div>
-        <label class="field-label">Filtra per categoria</label>
+        abel class="field-label">Filtra per categoria</label>
         <select id="filterCategory"><option value="">Tutte le categorie</option></select>
       </div>
       <div>
-        <label class="field-label">Filtra per scadenza</label>
+        abel class="field-label">Filtra per scadenza</label>
         <select id="filterExpiry">
           <option value="">Tutte</option>
           <option value="expired">Scaduti</option>
@@ -161,7 +177,7 @@
         </select>
       </div>
       <div>
-        <label class="field-label">Ordina per</label>
+        abel class="field-label">Ordina per</label>
         <select id="sortBy">
           <option value="name">Nome A-Z</option>
           <option value="expiry">Scadenza piu vicina</option>
@@ -174,6 +190,18 @@
     <div id="productList"></div>
   </section>
 </main>
+
+<!-- Modal Gestione Lotti -->
+<div class="modal-overlay" id="lotsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="lotsModalTitle">Gestione Lotti</h3>
+      <button class="modal-close" id="closeLotsModal">&times;</button>
+    </div>
+    <div id="lotsModalBody"></div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL="https://ujwhtxhbwtsockwnuvul.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqd2h0eGhid3Rzb2Nrd251dnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNDE1NzYsImV4cCI6MjA5MTcxNzU3Nn0.U-aPCivPbIImm8VeSaYk4GV_IL9OAH80xTZmqAMb5Z0";
