@@ -276,35 +276,117 @@
       }).join("");
     }
 
-    async function quickAdd(productId) {
-      const expiryDate = prompt("Data scadenza nuovo pezzo?\nFormato AAAA-MM-GG\nLascia vuoto se non serve", "");
-      const { data: lot, error: lotError } = await sb.from("lots").insert([{ product_id: productId, quantity: 1, expiry_date: expiryDate || null }]).select().single();
-      if (lotError) return alert("Errore carico: " + lotError.message);
-      const { error: mvError } = await sb.from("movements").insert([{ household_id: householdId, product_id: productId, lot_id: lot.id, movement_type: "load", quantity: 1, note: "Carico rapido +1", created_by: currentUser.id }]);
-      if (mvError) return alert("Caricato lotto ma errore movimento: " + mvError.message);
-      await loadProducts();
-    }
+   function convertItalianDateToIso(value) {
+  if (!value) return null;
 
-    async function quickRemove(productId) {
-      const product = cachedProducts.find(p => p.id === productId);
-      if (!product) return;
-      const lots = (product.lots || []).filter(l => Number(l.quantity || 0) > 0);
-      if (!lots.length) return alert("Nessuna quantità disponibile da scaricare.");
-      lots.sort((a, b) => {
-        const da = a.expiry_date ? new Date(a.expiry_date).getTime() : 9999999999999;
-        const db = b.expiry_date ? new Date(b.expiry_date).getTime() : 9999999999999;
-        return da - db;
-      });
-      const selectedLot = lots[0];
-      const currentQty = Number(selectedLot.quantity || 0);
-      if (currentQty <= 0) return alert("Lotto non disponibile.");
-      const newQty = currentQty - 1;
-      const { error: updError } = await sb.from("lots").update({ quantity: newQty }).eq("id", selectedLot.id);
-      if (updError) return alert("Errore scarico: " + updError.message);
-      const { error: mvError } = await sb.from("movements").insert([{ household_id: householdId, product_id: productId, lot_id: selectedLot.id, movement_type: "unload", quantity: 1, note: "Scarico rapido -1", created_by: currentUser.id }]);
-      if (mvError) return alert("Scarico fatto ma errore movimento: " + mvError.message);
-      await loadProducts();
-    }
+  const clean = value.trim().replaceAll("/", "-");
+  const parts = clean.split("-");
+
+  if (parts.length !== 3) return null;
+
+  const [dd, mm, yyyy] = parts;
+
+  if (!dd || !mm || !yyyy) return null;
+  if (yyyy.length !== 4) return null;
+
+  return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+}
+
+async function quickAdd(productId) {
+  const userDate = prompt(
+    "Data scadenza nuovo pezzo?\nFormato GG-MM-AAAA\nLascia vuoto se non serve",
+    ""
+  );
+
+  const isoDate = userDate ? convertItalianDateToIso(userDate) : null;
+
+  if (userDate && !isoDate) {
+    return alert("Data non valida. Usa il formato GG-MM-AAAA");
+  }
+
+  const { data: lot, error: lotError } = await sb
+    .from("lots")
+    .insert([{
+      product_id: productId,
+      quantity: 1,
+      expiry_date: isoDate
+    }])
+    .select()
+    .single();
+
+  if (lotError) return alert("Errore carico: " + lotError.message);
+
+  const { error: mvError } = await sb
+    .from("movements")
+    .insert([{
+      household_id: householdId,
+      product_id: productId,
+      lot_id: lot.id,
+      movement_type: "load",
+      quantity: 1,
+      note: "Carico rapido +1",
+      created_by: currentUser.id
+    }]);
+
+  if (mvError) return alert("Caricato lotto ma errore movimento: " + mvError.message);
+
+  await loadProducts();
+}
+
+ async function quickRemove(productId) {
+  const product = cachedProducts.find(p => p.id === productId);
+  if (!product) {
+    return alert("Prodotto non trovato.");
+  }
+
+  const lots = (product.lots || []).filter(l => Number(l.quantity || 0) > 0);
+
+  if (!lots.length) {
+    return alert("Nessuna quantità disponibile da scaricare.");
+  }
+
+  lots.sort((a, b) => {
+    const da = a.expiry_date ? new Date(a.expiry_date).getTime() : 9999999999999;
+    const db = b.expiry_date ? new Date(b.expiry_date).getTime() : 9999999999999;
+    return da - db;
+  });
+
+  const selectedLot = lots[0];
+  const currentQty = Number(selectedLot.quantity || 0);
+
+  if (currentQty <= 0) {
+    return alert("Lotto non disponibile.");
+  }
+
+  const newQty = currentQty - 1;
+
+  const { error: updError } = await sb
+    .from("lots")
+    .update({ quantity: newQty })
+    .eq("id", selectedLot.id);
+
+  if (updError) {
+    return alert("Errore scarico: " + updError.message);
+  }
+
+  const { error: mvError } = await sb
+    .from("movements")
+    .insert([{
+      household_id: householdId,
+      product_id: productId,
+      lot_id: selectedLot.id,
+      movement_type: "unload",
+      quantity: 1,
+      note: "Scarico rapido -1",
+      created_by: currentUser.id
+    }]);
+
+  if (mvError) {
+    return alert("Scarico fatto ma errore movimento: " + mvError.message);
+  }
+
+  await loadProducts();
+}
 
     async function deleteProduct(productId, productName) {
       const ok = confirm(`Vuoi davvero eliminare il prodotto: ${productName} ?\n\nAttenzione: cancellerai anche lotti e movimenti collegati.`);
