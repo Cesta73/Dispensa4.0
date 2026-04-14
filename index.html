@@ -4,23 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dispensa Smart</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js"></script>
+
   <style>
     :root {
       --bg: #f7f6f2;
       --card: #ffffff;
-      --text: #222;
-      --muted: #666;
+      --text: #222222;
+      --muted: #666666;
       --primary: #0b6b6f;
+      --primary-soft: #d9ecec;
       --danger: #b42318;
       --warning: #d97706;
       --success: #15803d;
-      --border: #ddd;
+      --border: #dddddd;
       --radius: 14px;
+      --shadow: 0 4px 14px rgba(0,0,0,0.06);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -31,10 +38,10 @@
     header {
       position: sticky;
       top: 0;
+      z-index: 10;
       background: var(--card);
       border-bottom: 1px solid var(--border);
       padding: 14px;
-      z-index: 10;
     }
 
     h1 {
@@ -42,10 +49,15 @@
       font-size: 22px;
     }
 
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+    }
+
     main {
-      padding: 14px;
-      max-width: 780px;
+      max-width: 820px;
       margin: 0 auto;
+      padding: 14px;
     }
 
     .card {
@@ -54,6 +66,11 @@
       border-radius: var(--radius);
       padding: 14px;
       margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    form {
+      margin: 0;
     }
 
     input, button, select {
@@ -81,6 +98,13 @@
 
     button.danger {
       background: var(--danger);
+    }
+
+    button.small {
+      width: auto;
+      padding: 8px 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
     }
 
     .row {
@@ -112,62 +136,108 @@
       border-radius: 999px;
       font-size: 12px;
       margin-right: 6px;
+      margin-top: 6px;
     }
 
-    .ok { background: #dcfce7; color: #166534; }
-    .warn { background: #fef3c7; color: #92400e; }
-    .late { background: #fee2e2; color: #991b1b; }
+    .ok {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .warn {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .late {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar button {
+      flex: 1 1 180px;
+    }
 
     video {
       width: 100%;
       border-radius: 12px;
       margin-top: 10px;
       border: 1px solid var(--border);
+      background: #000;
+    }
+
+    .status-box {
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--primary-soft);
+      margin-top: 10px;
+      font-size: 14px;
     }
 
     @media (max-width: 640px) {
-      .row { grid-template-columns: 1fr; }
+      .row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Dispensa Smart</h1>
-    <div class="muted">Versione base con Supabase + barcode</div>
+    <div class="muted">App base con Supabase + barcode</div>
   </header>
 
   <main>
     <section class="card" id="authCard">
       <h2>Accesso</h2>
-      <input type="email" id="email" placeholder="La tua email" />
-      <input type="password" id="password" placeholder="Password" />
-      <button id="registerBtn">Registrati</button>
-      <button id="loginBtn" class="secondary">Accedi</button>
-      <p class="muted" id="authMsg"></p>
+
+      <form id="authForm">
+        <input type="email" id="email" placeholder="La tua email" autocomplete="email" required />
+        <input type="password" id="password" placeholder="Password" autocomplete="current-password" required />
+        <div class="toolbar">
+          <button type="button" id="registerBtn">Registrati</button>
+          <button type="button" id="loginBtn" class="secondary">Accedi</button>
+        </div>
+      </form>
+
+      <div class="status-box muted" id="authMsg">Inserisci email e password.</div>
     </section>
 
     <section class="card hidden" id="appCard">
       <h2>Nuovo prodotto</h2>
 
-      <input type="text" id="productName" placeholder="Nome prodotto" />
-      <input type="text" id="barcode" placeholder="Barcode" />
-      <div class="row">
-        <input type="text" id="brand" placeholder="Marca" />
-        <input type="text" id="category" placeholder="Categoria" />
-      </div>
-      <div class="row">
-        <input type="number" id="quantity" placeholder="Quantità" value="1" />
-        <input type="date" id="expiryDate" />
-      </div>
+      <form id="productForm">
+        <input type="text" id="productName" placeholder="Nome prodotto" required />
+        <input type="text" id="barcode" placeholder="Barcode" />
+        
+        <div class="row">
+          <input type="text" id="brand" placeholder="Marca" />
+          <input type="text" id="category" placeholder="Categoria" />
+        </div>
 
-      <button id="scanBtn">Scansiona barcode</button>
+        <div class="row">
+          <input type="number" id="quantity" placeholder="Quantità" value="1" min="1" step="1" />
+          <input type="date" id="expiryDate" />
+        </div>
+
+        <div class="toolbar">
+          <button type="button" id="scanBtn">Scansiona barcode</button>
+          <button type="button" id="saveBtn">Salva prodotto</button>
+        </div>
+      </form>
+
       <div id="scannerArea" class="hidden">
         <video id="video"></video>
-        <button id="stopScanBtn" class="secondary">Ferma scansione</button>
+        <button id="stopScanBtn" class="secondary" type="button">Ferma scansione</button>
       </div>
 
-      <button id="saveBtn">Salva prodotto</button>
-      <p class="muted" id="saveMsg"></p>
+      <div class="status-box muted" id="saveMsg">Pronto.</div>
     </section>
 
     <section class="card hidden" id="listCard">
@@ -179,13 +249,17 @@
 
   <script>
     const SUPABASE_URL = "https://ujwhtxhbwtsockwnuvul.supabase.com";
-    const SUPABASE_ANON_KEY = "INCOLLA_QUI_LA_TUA_ANON_KEeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqd2h0eGhid3Rzb2Nrd251dnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNDE1NzYsImV4cCI6MjA5MTcxNzU3Nn0.U-aPCivPbIImm8VeSaYk4GV_IL9OAH80xTZmqAMb5Z0";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqd2h0eGhid3Rzb2Nrd251dnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNDE1NzYsImV4cCI6MjA5MTcxNzU3Nn0.U-aPCivPbIImm8VeSaYk4GV_IL9OAH80xTZmqAMb5Z0";
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const authCard = document.getElementById("authCard");
     const appCard = document.getElementById("appCard");
     const listCard = document.getElementById("listCard");
+
+    const authForm = document.getElementById("authForm");
+    const productForm = document.getElementById("productForm");
+
     const authMsg = document.getElementById("authMsg");
     const saveMsg = document.getElementById("saveMsg");
 
@@ -206,91 +280,25 @@
     const scannerArea = document.getElementById("scannerArea");
     const video = document.getElementById("video");
 
+    const registerBtn = document.getElementById("registerBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const saveBtn = document.getElementById("saveBtn");
+
     let currentUser = null;
     let householdId = null;
+    let scannerControls = null;
     let codeReader = null;
+    let cachedProducts = [];
 
-    async function register() {
-      authMsg.textContent = "Registrazione in corso...";
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
+    authForm.addEventListener("submit", (e) => e.preventDefault());
+    productForm.addEventListener("submit", (e) => e.preventDefault());
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password
-      });
-
-      if (error) {
-        authMsg.textContent = "Errore registrazione: " + error.message;
-        return;
-      }
-
-      authMsg.textContent = "Registrazione fatta. Controlla la mail se richiesta, poi fai accesso.";
+    function setAuthMessage(text) {
+      authMsg.textContent = text;
     }
 
-    async function login() {
-      authMsg.textContent = "Accesso in corso...";
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        authMsg.textContent = "Errore accesso: " + error.message;
-        return;
-      }
-
-      authMsg.textContent = "Accesso eseguito.";
-      currentUser = data.user;
-      await ensureProfile();
-      showApp();
-      await loadProducts();
-    }
-
-    async function ensureProfile() {
-      const { data: existingProfile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
-      if (profileError) {
-        authMsg.textContent = "Errore profilo: " + profileError.message;
-        return;
-      }
-
-      if (existingProfile && existingProfile.household_id) {
-        householdId = existingProfile.household_id;
-        return;
-      }
-
-      const { data: newHousehold, error: householdError } = await supabase
-        .from("households")
-        .insert([{ name: "Casa Gian" }])
-        .select()
-        .single();
-
-      if (householdError) {
-        authMsg.textContent = "Errore creazione famiglia: " + householdError.message;
-        return;
-      }
-
-      householdId = newHousehold.id;
-
-      const { error: insertProfileError } = await supabase
-        .from("profiles")
-        .upsert([{
-          id: currentUser.id,
-          household_id: householdId,
-          role: "owner"
-        }]);
-
-      if (insertProfileError) {
-        authMsg.textContent = "Errore salvataggio profilo: " + insertProfileError.message;
-      }
+    function setSaveMessage(text) {
+      saveMsg.textContent = text;
     }
 
     function showApp() {
@@ -299,8 +307,129 @@
       listCard.classList.remove("hidden");
     }
 
+    function formatDate(dateString) {
+      if (!dateString) return "-";
+      const d = new Date(dateString);
+      if (isNaN(d)) return dateString;
+      return d.toLocaleDateString("it-IT");
+    }
+
+    function getExpiryBadge(expiryDate) {
+      if (!expiryDate) return "";
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const exp = new Date(expiryDate);
+      exp.setHours(0, 0, 0, 0);
+
+      const diff = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
+
+      if (diff < 0) return `<span class="badge late">Scaduto</span>`;
+      if (diff <= 30) return `<span class="badge warn">Scade presto</span>`;
+      return `<span class="badge ok">Ok</span>`;
+    }
+
+    async function register() {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email || !password) {
+        setAuthMessage("Inserisci email e password.");
+        return;
+      }
+
+      setAuthMessage("Registrazione in corso...");
+
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) {
+        setAuthMessage("Errore registrazione: " + error.message);
+        return;
+      }
+
+      setAuthMessage("Registrazione eseguita. Se Supabase ti chiede conferma mail, apri la tua email e poi fai login.");
+    }
+
+    async function login() {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      if (!email || !password) {
+        setAuthMessage("Inserisci email e password.");
+        return;
+      }
+
+      setAuthMessage("Accesso in corso...");
+
+      const { data, error } = await sb.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        setAuthMessage("Errore accesso: " + error.message);
+        return;
+      }
+
+      currentUser = data.user;
+      await ensureProfile();
+      showApp();
+      await loadProducts();
+      setAuthMessage("Accesso eseguito.");
+    }
+
+    async function ensureProfile() {
+      const { data: existingProfile, error: profileError } = await sb
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      if (profileError) {
+        setAuthMessage("Errore lettura profilo: " + profileError.message);
+        return;
+      }
+
+      if (existingProfile && existingProfile.household_id) {
+        householdId = existingProfile.household_id;
+        return;
+      }
+
+      const { data: newHousehold, error: householdError } = await sb
+        .from("households")
+        .insert([{ name: "Casa Gian" }])
+        .select()
+        .single();
+
+      if (householdError) {
+        setAuthMessage("Errore creazione famiglia: " + householdError.message);
+        return;
+      }
+
+      householdId = newHousehold.id;
+
+      const { error: upsertError } = await sb
+        .from("profiles")
+        .upsert([{
+          id: currentUser.id,
+          household_id: householdId,
+          role: "owner"
+        }]);
+
+      if (upsertError) {
+        setAuthMessage("Errore salvataggio profilo: " + upsertError.message);
+      }
+    }
+
     async function saveProduct() {
-      saveMsg.textContent = "Salvataggio in corso...";
+      if (!householdId || !currentUser) {
+        setSaveMessage("Utente non pronto. Rifai il login.");
+        return;
+      }
 
       const name = productNameInput.value.trim();
       const barcode = barcodeInput.value.trim();
@@ -310,11 +439,13 @@
       const expiryDate = expiryDateInput.value || null;
 
       if (!name) {
-        saveMsg.textContent = "Inserisci il nome prodotto.";
+        setSaveMessage("Inserisci il nome prodotto.");
         return;
       }
 
-      const { data: product, error: productError } = await supabase
+      setSaveMessage("Salvataggio in corso...");
+
+      const { data: product, error: productError } = await sb
         .from("products")
         .insert([{
           household_id: householdId,
@@ -327,11 +458,11 @@
         .single();
 
       if (productError) {
-        saveMsg.textContent = "Errore prodotto: " + productError.message;
+        setSaveMessage("Errore prodotto: " + productError.message);
         return;
       }
 
-      const { data: lot, error: lotError } = await supabase
+      const { data: lot, error: lotError } = await sb
         .from("lots")
         .insert([{
           product_id: product.id,
@@ -342,11 +473,11 @@
         .single();
 
       if (lotError) {
-        saveMsg.textContent = "Errore lotto: " + lotError.message;
+        setSaveMessage("Errore lotto: " + lotError.message);
         return;
       }
 
-      const { error: movementError } = await supabase
+      const { error: movementError } = await sb
         .from("movements")
         .insert([{
           household_id: householdId,
@@ -354,65 +485,64 @@
           lot_id: lot.id,
           movement_type: "load",
           quantity,
-          created_by: currentUser.id,
-          note: "Carico iniziale"
+          note: "Carico iniziale",
+          created_by: currentUser.id
         }]);
 
       if (movementError) {
-        saveMsg.textContent = "Prodotto salvato ma errore movimento: " + movementError.message;
+        setSaveMessage("Prodotto salvato ma errore movimento: " + movementError.message);
         return;
       }
 
-      saveMsg.textContent = "Prodotto salvato correttamente.";
-
-      productNameInput.value = "";
-      barcodeInput.value = "";
-      brandInput.value = "";
-      categoryInput.value = "";
+      productForm.reset();
       quantityInput.value = 1;
-      expiryDateInput.value = "";
-
+      setSaveMessage("Prodotto salvato correttamente.");
       await loadProducts();
     }
 
-    function getExpiryBadge(expiryDate) {
-      if (!expiryDate) return "";
-
-      const today = new Date();
-      const exp = new Date(expiryDate);
-      const diff = Math.ceil((exp - today) / (1000 * 60 * 60 * 24));
-
-      if (diff < 0) return `<span class="badge late">Scaduto</span>`;
-      if (diff <= 30) return `<span class="badge warn">Scade presto</span>`;
-      return `<span class="badge ok">Ok</span>`;
-    }
-
     async function loadProducts() {
-      const { data, error } = await supabase
+      if (!householdId) return;
+
+      const { data, error } = await sb
         .from("products")
         .select(`
-          id, name, barcode, brand, category,
-          lots ( id, quantity, expiry_date )
+          id,
+          name,
+          barcode,
+          brand,
+          category,
+          created_at,
+          lots (
+            id,
+            quantity,
+            expiry_date
+          )
         `)
         .eq("household_id", householdId)
         .order("created_at", { ascending: false });
 
       if (error) {
-        productList.innerHTML = "<p>Errore caricamento prodotti.</p>";
+        productList.innerHTML = "<p>Errore caricamento prodotti: " + error.message + "</p>";
         return;
       }
 
-      renderProducts(data);
+      cachedProducts = data || [];
+      renderProducts();
     }
 
-    function renderProducts(products) {
+    function renderProducts() {
       const term = searchInput.value.trim().toLowerCase();
-      const filtered = products.filter(p =>
-        (p.name || "").toLowerCase().includes(term) ||
-        (p.barcode || "").toLowerCase().includes(term) ||
-        (p.brand || "").toLowerCase().includes(term) ||
-        (p.category || "").toLowerCase().includes(term)
-      );
+
+      const filtered = cachedProducts.filter(product => {
+        const text = [
+          product.name || "",
+          product.barcode || "",
+          product.brand || "",
+          product.category || ""
+        ].join(" ").toLowerCase();
+
+        return text.includes(term);
+      });
 
       if (!filtered.length) {
         productList.innerHTML = "<p>Nessun prodotto trovato.</p>";
@@ -422,20 +552,34 @@
       productList.innerHTML = filtered.map(product => {
         const lots = product.lots || [];
         const totalQty = lots.reduce((sum, lot) => sum + Number(lot.quantity || 0), 0);
+
         const nearestExpiry = lots
-          .filter(l => l.expiry_date)
+          .filter(lot => lot.expiry_date)
           .sort((a, b) => new Date(a.expiry_date) - new Date(b.expiry_date))[0];
 
         return `
           <div class="product">
-            <strong>${product.name}</strong><br>
-            <span class="muted">Marca: ${product.brand || "-"} | Categoria: ${product.category || "-"} | Barcode: ${product.barcode || "-"}</span><br>
+            <strong>${escapeHtml(product.name || "")}</strong><br>
+            <span class="muted">
+              Marca: ${escapeHtml(product.brand || "-")} |
+              Categoria: ${escapeHtml(product.category || "-")} |
+              Barcode: ${escapeHtml(product.barcode || "-")}
+            </span><br>
             <span>Quantità totale: <strong>${totalQty}</strong></span><br>
-            <span>Scadenza più vicina: ${nearestExpiry ? nearestExpiry.expiry_date : "-"}</span><br>
+            <span>Scadenza più vicina: ${nearestExpiry ? formatDate(nearestExpiry.expiry_date) : "-"}</span><br>
             ${nearestExpiry ? getExpiryBadge(nearestExpiry.expiry_date) : ""}
           </div>
         `;
       }).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     async function startScanner() {
@@ -445,15 +589,27 @@
         codeReader = new ZXingBrowser.BrowserMultiFormatReader();
         const devices = await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
 
-        if (!devices.length) {
+        if (!devices || !devices.length) {
           alert("Nessuna fotocamera trovata.");
           return;
         }
 
-        await codeReader.decodeFromVideoDevice(
-          devices[0].deviceId,
+        let selectedDeviceId = devices[0].deviceId;
+
+        const rearCamera = devices.find(device =>
+          (device.label || "").toLowerCase().includes("back") ||
+          (device.label || "").toLowerCase().includes("rear") ||
+          (device.label || "").toLowerCase().includes("environment")
+        );
+
+        if (rearCamera) {
+          selectedDeviceId = rearCamera.deviceId;
+        }
+
+        scannerControls = await codeReader.decodeFromVideoDevice(
+          selectedDeviceId,
           video,
-          (result, err) => {
+          (result, error, controls) => {
             if (result) {
               barcodeInput.value = result.text;
               stopScanner();
@@ -467,17 +623,44 @@
 
     function stopScanner() {
       scannerArea.classList.add("hidden");
-      if (codeReader) {
+
+      if (scannerControls && typeof scannerControls.stop === "function") {
+        scannerControls.stop();
+      }
+
+      if (codeReader && typeof codeReader.reset === "function") {
         codeReader.reset();
+      }
+
+      scannerControls = null;
+      codeReader = null;
+    }
+
+    async function checkExistingSession() {
+      const { data, error } = await sb.auth.getSession();
+
+      if (error) {
+        setAuthMessage("Errore sessione: " + error.message);
+        return;
+      }
+
+      if (data && data.session && data.session.user) {
+        currentUser = data.session.user;
+        await ensureProfile();
+        showApp();
+        await loadProducts();
+        setAuthMessage("Sessione già attiva.");
       }
     }
 
-    document.getElementById("registerBtn").addEventListener("click", register);
-    document.getElementById("loginBtn").addEventListener("click", login);
-    document.getElementById("saveBtn").addEventListener("click", saveProduct);
-    searchInput.addEventListener("input", loadProducts);
+    registerBtn.addEventListener("click", register);
+    loginBtn.addEventListener("click", login);
+    saveBtn.addEventListener("click", saveProduct);
     scanBtn.addEventListener("click", startScanner);
     stopScanBtn.addEventListener("click", stopScanner);
+    searchInput.addEventListener("input", renderProducts);
+
+    checkExistingSession();
   </script>
 </body>
 </html>
