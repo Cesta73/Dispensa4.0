@@ -159,8 +159,8 @@
   </section>
 </main>
 <script>
-const SUPABASE_URL="INCOLLA_QUI_IL_TUO_SUPABASE_URL";
-const SUPABASE_ANON_KEY="INCOLLA_QUI_LA_TUA_ANON_KEY";
+const SUPABASE_URL="https://ujwhtxhbwtsockwnuvul.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqd2h0eGhid3Rzb2Nrd251dnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNDE1NzYsImV4cCI6MjA5MTcxNzU3Nn0.U-aPCivPbIImm8VeSaYk4GV_IL9OAH80xTZmqAMb5Z0";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const authCard=document.getElementById("authCard"),appCard=document.getElementById("appCard"),listCard=document.getElementById("listCard"),authMsg=document.getElementById("authMsg"),saveMsg=document.getElementById("saveMsg"),emailInput=document.getElementById("email"),passwordInput=document.getElementById("password"),productNameInput=document.getElementById("productName"),barcodeInput=document.getElementById("barcode"),brandInput=document.getElementById("brand"),categoryInput=document.getElementById("category"),unitsPerPackInput=document.getElementById("unitsPerPack"),minStockUnitsInput=document.getElementById("minStockUnits"),quantityInput=document.getElementById("quantity"),expiryDateInput=document.getElementById("expiryDate"),searchInput=document.getElementById("searchInput"),filterCategory=document.getElementById("filterCategory"),filterExpiry=document.getElementById("filterExpiry"),sortBy=document.getElementById("sortBy"),productList=document.getElementById("productList"),scannerArea=document.getElementById("scannerArea"),video=document.getElementById("video"),registerBtn=document.getElementById("registerBtn"),loginBtn=document.getElementById("loginBtn"),saveBtn=document.getElementById("saveBtn"),scanBtn=document.getElementById("scanBtn"),stopScanBtn=document.getElementById("stopScanBtn"),lookupBarcodeBtn=document.getElementById("lookupBarcodeBtn"),resetFiltersBtn=document.getElementById("resetFiltersBtn");let currentUser=null,householdId=null,scannerControls=null,codeReader=null,cachedProducts=[];
 document.getElementById("authForm").addEventListener("submit",e=>e.preventDefault());
