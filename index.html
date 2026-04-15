@@ -174,7 +174,9 @@ function renderProducts(){const term=searchInput.value.trim().toLowerCase(),catF
   let codeReader = null;
   let isScanning = false;
 
-  document.getElementById('scanBarcodeBtn').addEventListener('click', async () => {
+const scanBtn = document.getElementById('scanBarcodeBtn');
+  if (scanBtn) {
+  scanBtn.addEventListener('click', async () => {
       const video = document.getElementById('barcodeVideo');
       const btn = document.getElementById('scanBarcodeBtn');
       const barcodeInput = document.getElementById('barcode');
@@ -231,6 +233,7 @@ function renderProducts(){const term=searchInput.value.trim().toLowerCase(),catF
             isScanning = false;
           }
     });
+    }
 </script>
 </body>
 </html>
