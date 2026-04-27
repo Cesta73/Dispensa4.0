@@ -159,12 +159,12 @@
     <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
       <h3>Gestione Database</h3>
       <div class="toolbar">
-                <button type="button" id="exportCsvBtn" class="secondary">📊 Esporta CSV</button>
-        <button type="button" id="exportJsonBtn" class="secondary">📥 Esporta JSON</button>
-        <button type="button" id="importBtn" class="secondary">📤 Importa</button>
+        <button type="button" id="exportCsvBtn" class="secondary">Esporta CSV</button>
+        <button type="button" id="exportJsonBtn" class="secondary">Esporta JSON</button>
+        <button type="button" id="importBtn" class="secondary">Importa</button>
         <input type="file" id="importFile" accept=".csv,.json" style="display:none;">
       </div>
-      <p class="hint">Esporta tutti i prodotti in un file JSON o importa un file per caricare velocemente la tua dispensa.</p>
+      <p class="hint">Esporta tutti i prodotti in un file CSV o JSON, oppure importa un file per caricare velocemente la tua dispensa.</p>
     </div>
   </section>
 </main>
@@ -172,42 +172,367 @@
 const SUPABASE_URL="https://ujwhtxhbwtsockwnuvul.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqd2h0eGhid3Rzb2Nrd251dnVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNDE1NzYsImV4cCI6MjA5MTcxNzU3Nn0.U-aPCivPbIImm8VeSaYk4GV_IL9OAH80xTZmqAMb5Z0";
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const authCard=document.getElementById("authCard"),appCard=document.getElementById("appCard"),listCard=document.getElementById("listCard"),authMsg=document.getElementById("authMsg"),saveMsg=document.getElementById("saveMsg"),emailInput=document.getElementById("email"),passwordInput=document.getElementById("password"),productNameInput=document.getElementById("productName"),barcodeInput=document.getElementById("barcode"),brandInput=document.getElementById("brand"),categoryInput=document.getElementById("category"),unitsPerPackInput=document.getElementById("unitsPerPack"),minStockUnitsInput=document.getElementById("minStockUnits"),quantityInput=document.getElementById("quantity"),expiryDateInput=document.getElementById("expiryDate"),searchInput=document.getElementById("searchInput"),filterCategory=document.getElementById("filterCategory"),filterExpiry=document.getElementById("filterExpiry"),sortBy=document.getElementById("sortBy"),productList=document.getElementById("productList"),scannerArea=document.getElementById("scannerArea"),video=document.getElementById("video"),registerBtn=document.getElementById("registerBtn"),loginBtn=document.getElementById("loginBtn"),saveBtn=document.getElementById("saveBtn"),scanBtn=document.getElementById("scanBtn"),stopScanBtn=document.getElementById("stopScanBtn"),lookupBarcodeBtn=document.getElementById("lookupBarcodeBtn"),resetFiltersBtn=document.getElementById("resetFiltersBtn");let currentUser=null,householdId=null,scannerControls=null,codeReader=null,cachedProducts=[];
+
+const authCard=document.getElementById("authCard"),
+      appCard=document.getElementById("appCard"),
+      listCard=document.getElementById("listCard"),
+      authMsg=document.getElementById("authMsg"),
+      saveMsg=document.getElementById("saveMsg"),
+      emailInput=document.getElementById("email"),
+      passwordInput=document.getElementById("password"),
+      productNameInput=document.getElementById("productName"),
+      barcodeInput=document.getElementById("barcode"),
+      brandInput=document.getElementById("brand"),
+      categoryInput=document.getElementById("category"),
+      unitsPerPackInput=document.getElementById("unitsPerPack"),
+      minStockUnitsInput=document.getElementById("minStockUnits"),
+      quantityInput=document.getElementById("quantity"),
+      expiryDateInput=document.getElementById("expiryDate"),
+      searchInput=document.getElementById("searchInput"),
+      filterCategory=document.getElementById("filterCategory"),
+      filterExpiry=document.getElementById("filterExpiry"),
+      sortBy=document.getElementById("sortBy"),
+      productList=document.getElementById("productList"),
+      scannerArea=document.getElementById("scannerArea"),
+      video=document.getElementById("video"),
+      registerBtn=document.getElementById("registerBtn"),
+      loginBtn=document.getElementById("loginBtn"),
+      saveBtn=document.getElementById("saveBtn"),
+      scanBtn=document.getElementById("scanBtn"),
+      stopScanBtn=document.getElementById("stopScanBtn"),
+      lookupBarcodeBtn=document.getElementById("lookupBarcodeBtn"),
+      resetFiltersBtn=document.getElementById("resetFiltersBtn"),
+      exportCsvBtn=document.getElementById("exportCsvBtn"),
+      exportJsonBtn=document.getElementById("exportJsonBtn"),
+      importBtn=document.getElementById("importBtn"),
+      importFile=document.getElementById("importFile");
+
+let currentUser=null,householdId=null,scannerControls=null,codeReader=null,cachedProducts=[];
+
 document.getElementById("authForm").addEventListener("submit",e=>e.preventDefault());
 document.getElementById("productForm").addEventListener("submit",e=>e.preventDefault());
-function setAuthMessage(t){authMsg.textContent=t}function setSaveMessage(t){saveMsg.textContent=t}function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}function showApp(){authCard.classList.add('hidden');appCard.classList.remove('hidden');listCard.classList.remove('hidden')}function formatDate(d){if(!d)return'-';const dt=new Date(d);if(isNaN(dt))return d;return dt.toLocaleDateString('it-IT')}function getExpiryBadge(expiryDate){if(!expiryDate)return'';const today=new Date();today.setHours(0,0,0,0);const exp=new Date(expiryDate);exp.setHours(0,0,0,0);const diff=Math.ceil((exp-today)/864e5);if(diff<0)return'<span class="badge late">Scaduto</span>';if(diff<=30)return`<span class="badge late">Scade tra ${diff} giorni</span>`;if(diff<=90)return`<span class="badge warn">Scade tra ${diff} giorni</span>`;return'<span class="badge ok">Ok</span>'}async function register(){const email=emailInput.value.trim(),password=passwordInput.value.trim();if(!email||!password)return setAuthMessage('Inserisci email e password.');setAuthMessage('Registrazione in corso...');const{error}=await sb.auth.signUp({email,password});if(error)return setAuthMessage('Errore: '+error.message);setAuthMessage('Registrazione eseguita. Controlla email e poi accedi.')}async function login(){const email=emailInput.value.trim(),password=passwordInput.value.trim();if(!email||!password)return setAuthMessage('Inserisci email e password.');setAuthMessage('Accesso in corso...');const{data,error}=await sb.auth.signInWithPassword({email,password});if(error)return setAuthMessage('Errore accesso: '+error.message);currentUser=data.user;await ensureProfile();showApp();await loadProducts()}async function ensureProfile(){const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();if(profile&&profile.household_id){householdId=profile.household_id;return}const{data:hh,error:hhErr}=await sb.from('households').insert([{name:'Casa'}]).select().single();if(hhErr){setAuthMessage('Errore household: '+hhErr.message);return}householdId=hh.id;await sb.from('profiles').upsert([{id:currentUser.id,household_id:householdId,role:'owner'}])}async function autofillFromBarcode(barcode){if(!barcode)return;setSaveMessage('Cerco il prodotto nel tuo database...');const{data:existing}=await sb.from('products').select('*').eq('household_id',householdId).eq('barcode',barcode).maybeSingle();if(existing){productNameInput.value=existing.name||'';brandInput.value=existing.brand||'';categoryInput.value=existing.category||'';unitsPerPackInput.value=existing.units_per_pack||1;minStockUnitsInput.value=existing.min_stock_units||1;setSaveMessage('Prodotto trovato nel tuo database. Puoi aggiungere un nuovo lotto.');return}setSaveMessage('Non trovato nel DB locale, cerco online...');try{const res=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);const data=await res.json();if(data&&data.status===1&&data.product){const p=data.product;if(!productNameInput.value&&p.product_name)productNameInput.value=p.product_name;if(!brandInput.value&&p.brands)brandInput.value=p.brands.split(',')[0].trim();if(!categoryInput.value&&p.categories)categoryInput.value=p.categories.split(',')[0].trim();setSaveMessage('Prodotto trovato online. Salva per memorizzarlo nel tuo database.')}else{setSaveMessage('Barcode letto ma non trovato online. Compila i campi a mano.')}}catch{setSaveMessage('Errore ricerca online. Compila i campi a mano.')}}async function saveProduct(){if(!householdId||!currentUser)return setSaveMessage('Utente non pronto. Rifai il login.');const name=productNameInput.value.trim();if(!name)return setSaveMessage('Inserisci il nome del prodotto.');const barcode=barcodeInput.value.trim()||null,brand=brandInput.value.trim()||null,category=categoryInput.value.trim()||null,unitsPerPack=parseInt(unitsPerPackInput.value)||1,minStockUnits=parseInt(minStockUnitsInput.value)||1,confezioni=parseInt(quantityInput.value)||1,unitaTotali=confezioni*unitsPerPack,expiryDate=expiryDateInput.value||null;setSaveMessage('Salvataggio in corso...');let productId=null;if(barcode){const{data:existing}=await sb.from('products').select('id').eq('household_id',householdId).eq('barcode',barcode).maybeSingle();if(existing){productId=existing.id;await sb.from('products').update({name,brand,category,units_per_pack:unitsPerPack,min_stock_units:minStockUnits}).eq('id',productId)}}if(!productId){const{data:newP,error:pErr}=await sb.from('products').insert([{household_id:householdId,name,barcode,brand,category,units_per_pack:unitsPerPack,min_stock_units:minStockUnits}]).select().single();if(pErr)return setSaveMessage('Errore prodotto: '+pErr.message);productId=newP.id}const{data:lot,error:lotErr}=await sb.from('lots').insert([{product_id:productId,quantity:unitaTotali,expiry_date:expiryDate}]).select().single();if(lotErr)return setSaveMessage('Errore lotto: '+lotErr.message);const{error:mvErr}=await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'load',quantity:unitaTotali,note:`Carico ${confezioni} conf. x ${unitsPerPack} unita`,created_by:currentUser.id}]);if(mvErr)return setSaveMessage('Salvato ma errore movimento: '+mvErr.message);document.getElementById('productForm').reset();unitsPerPackInput.value=1;minStockUnitsInput.value=1;quantityInput.value=1;setSaveMessage('Prodotto salvato correttamente.');await loadProducts()}async function loadProducts(){if(!householdId)return;const{data,error}=await sb.from('products').select(`id,name,barcode,brand,category,units_per_pack,min_stock_units,created_at,lots(id,quantity,expiry_date)`).eq('household_id',householdId).order('name',{ascending:true});if(error){productList.innerHTML='<p>Errore: '+error.message+'</p>';return}cachedProducts=data||[];populateCategoryFilter();renderProducts()}function populateCategoryFilter(){const cats=[...new Set(cachedProducts.map(p=>p.category).filter(Boolean))].sort();const current=filterCategory.value;filterCategory.innerHTML='<option value="">Tutte le categorie</option>';cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;if(c===current)o.selected=true;filterCategory.appendChild(o)})}
-function renderProducts(){const term=searchInput.value.trim().toLowerCase(),catFilter=filterCategory.value,expiryFilter=filterExpiry.value,sort=sortBy.value,today=new Date();today.setHours(0,0,0,0);let list=cachedProducts.filter(p=>{const text=[p.name,p.barcode,p.brand,p.category].join(' ').toLowerCase();if(term&&!text.includes(term))return false;if(catFilter&&p.category!==catFilter)return false;if(expiryFilter){const lots=p.lots||[],withExp=lots.filter(l=>l.expiry_date),nearest=[...withExp].sort((a,b)=>new Date(a.expiry_date)-new Date(b.expiry_date))[0];if(expiryFilter==='none'){if(withExp.length>0)return false}else if(expiryFilter==='expired'){if(!nearest||new Date(nearest.expiry_date)>=today)return false}else{const days=parseInt(expiryFilter);if(!nearest)return false;const diff=Math.ceil((new Date(nearest.expiry_date)-today)/864e5);if(diff<0||diff>days)return false}}return true});list.sort((a,b)=>{const tA=(a.lots||[]).reduce((s,l)=>s+Number(l.quantity||0),0),tB=(b.lots||[]).reduce((s,l)=>s+Number(l.quantity||0),0),nA=(a.lots||[]).filter(l=>l.expiry_date).sort((x,y)=>new Date(x.expiry_date)-new Date(y.expiry_date))[0],nB=(b.lots||[]).filter(l=>l.expiry_date).sort((x,y)=>new Date(x.expiry_date)-new Date(y.expiry_date))[0];if(sort==='name')return(a.name||'').localeCompare(b.name||'','it');if(sort==='expiry'){const da=nA?new Date(nA.expiry_date).getTime():9999999999999,db=nB?new Date(nB.expiry_date).getTime():9999999999999;return da-db}if(sort==='qty_desc')return tB-tA;if(sort==='qty_asc')return tA-tB;return 0});if(!list.length){productList.innerHTML='<p class="muted">Nessun prodotto trovato.</p>';return}productList.innerHTML=list.map(p=>{const lots=p.lots||[],totalUnits=lots.reduce((s,l)=>s+Number(l.quantity||0),0),unitsPerPack=p.units_per_pack||1,minStock=p.min_stock_units||1,nearest=[...lots].filter(l=>l.expiry_date).sort((a,b)=>new Date(a.expiry_date)-new Date(b.expiry_date))[0],confezioniEquiv=unitsPerPack>1?Math.floor(totalUnits/unitsPerPack):null;let badges='';if(totalUnits<=0)badges+='<span class="badge late">Esaurito</span>';else if(totalUnits<=minStock)badges+='<span class="badge warn">Sotto scorta minima</span>';else badges+='<span class="badge ok">Disponibile</span>';if(nearest)badges+=getExpiryBadge(nearest.expiry_date);return`<div class="product" id="prod-${p.id}"><div class="product-name">${escapeHtml(p.name)}</div><div class="product-meta">${p.brand?`<span>Marca: <strong>${escapeHtml(p.brand)}</strong></span> &nbsp;`:''}${p.category?`<span>Categoria: <strong>${escapeHtml(p.category)}</strong></span> &nbsp;`:''}${p.barcode?`<span>Barcode: <strong>${escapeHtml(p.barcode)}</strong></span>`:''}</div><div class="product-stock"><div class="stock-item"><span class="stock-label">Unita disponibili</span><span class="stock-value">${totalUnits}</span></div>${confezioniEquiv!==null?`<div class="stock-item"><span class="stock-label">Confezioni equiv.</span><span class="stock-value">${confezioniEquiv}</span></div>`:''}<div class="stock-item"><span class="stock-label">Unita per conf.</span><span class="stock-value">${unitsPerPack}</span></div><div class="stock-item"><span class="stock-label">Scorta minima</span><span class="stock-value">${minStock}</span></div><div class="stock-item"><span class="stock-label">Scadenza vicina</span><span class="stock-value" style="font-size:14px;">${nearest?formatDate(nearest.expiry_date):'-'}</span></div></div><div>${badges}</div><div class="product-actions"><button class="small" onclick="quickAdd('${p.id}')">+1 Confezione</button><button class="small secondary" onclick="quickRemove('${p.id}')"  >-1 Unita</button><button class="small secondary" onclick="toggleEdit('${p.id}')">Modifica</button><button class="small danger" onclick="deleteProduct('${p.id}')">Elimina</button></div><div class="edit-form hidden" id="edit-${p.id}"><label class="field-label">Nome prodotto</label><input type="text" id="edit-name-${p.id}" value="${escapeHtml(p.name)}" /><label class="field-label">Marca</label><input type="text" id="edit-brand-${p.id}" value="${escapeHtml(p.brand||'')}" /><label class="field-label">Categoria</label><input type="text" id="edit-category-${p.id}" value="${escapeHtml(p.category||'')}" /><label class="field-label">Codice a barre (barcode)</label><input type="text" id="edit-barcode-${p.id}" value="${escapeHtml(p.barcode||'')}" /><div class="row"><div><label class="field-label">Unita per confezione</label><input type="number" id="edit-upp-${p.id}" value="${unitsPerPack}" min="1" step="1" /><p class="hint">Es. tonno 3pack - 3</p></div><div><label class="field-label">Scorta minima (unita singole)</label><input type="number" id="edit-min-${p.id}" value="${minStock}" min="0" step="1" /><p class="hint">Avviso sotto questa soglia</p></div></div><div class="toolbar"><button class="small" onclick="saveEdit('${p.id}')">Salva modifiche</button><button class="small secondary" onclick="toggleEdit('${p.id}')">Annulla</button></div></div></div>`}).join('')}function toggleEdit(id){document.getElementById('edit-'+id).classList.toggle('hidden')}async function saveEdit(id){const name=document.getElementById('edit-name-'+id).value.trim(),brand=document.getElementById('edit-brand-'+id).value.trim()||null,category=document.getElementById('edit-category-'+id).value.trim()||null,barcode=document.getElementById('edit-barcode-'+id).value.trim()||null,upp=parseInt(document.getElementById('edit-upp-'+id).value)||1,min=parseInt(document.getElementById('edit-min-'+id).value)||1;if(!name)return alert('Il nome e obbligatorio.');const{error}=await sb.from('products').update({name,brand,category,barcode,units_per_pack:upp,min_stock_units:min}).eq('id',id);if(error)return alert('Errore modifica: '+error.message);await loadProducts()}async function quickAdd(productId){const p=cachedProducts.find(x=>x.id===productId);if(!p)return alert('Prodotto non trovato.');const unitsPerPack=p.units_per_pack||1,dateRaw=prompt('Data scadenza nuova confezione?\nFormato GG-MM-AAAA\nLascia vuoto se non serve','');let isoDate=null;if(dateRaw&&dateRaw.trim()){const parts=dateRaw.trim().replaceAll('/','- ').split('-');if(parts.length===3&&parts[2].length===4)isoDate=`${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;else return alert('Data non valida. Usa GG-MM-AAAA')}const{data:lot,error:lotErr}=await sb.from('lots').insert([{product_id:productId,quantity:unitsPerPack,expiry_date:isoDate}]).select().single();if(lotErr)return alert('Errore carico: '+lotErr.message);await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'load',quantity:unitsPerPack,note:`Carico rapido +1 conf. (${unitsPerPack} unita)`,created_by:currentUser.id}]);await loadProducts()}async function quickRemove(productId){const p=cachedProducts.find(x=>x.id===productId);if(!p)return alert('Prodotto non trovato.');const lots=(p.lots||[]).filter(l=>Number(l.quantity||0)>0);if(!lots.length)return alert('Nessuna unita disponibile da scaricare.');lots.sort((a,b)=>{const da=a.expiry_date?new Date(a.expiry_date).getTime():9999999999999,db=b.expiry_date?new Date(b.expiry_date).getTime():9999999999999;return da-db});const lot=lots[0],newQty=Number(lot.quantity)-1;const{error:updErr}=await sb.from('lots').update({quantity:newQty}).eq('id',lot.id);if(updErr)return alert('Errore scarico: '+updErr.message);await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'unload',quantity:1,note:'Scarico rapido -1 unita',created_by:currentUser.id}]);await loadProducts()}async function deleteProduct(productId){if(!confirm('Sei sicuro di voler eliminare questo prodotto?\nVerranno eliminati anche tutti i lotti e movimenti collegati.'))return;await sb.from('movements').delete().eq('product_id',productId);await sb.from('lots').delete().eq('product_id',productId);const{error}=await sb.from('products').delete().eq('id',productId);if(error)return alert('Errore eliminazione: '+error.message);await loadProducts()}async function startScanner(){if(typeof ZXingBrowser==='undefined')return alert('Libreria scanner non caricata.');scannerArea.classList.remove('hidden');try{codeReader=new ZXingBrowser.BrowserMultiFormatReader();const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();if(!devices||!devices.length)return alert('Nessuna fotocamera trovata.');let deviceId=devices[0].deviceId;const rear=devices.find(d=>(d.label||'').toLowerCase().match(/back|rear|environment/));if(rear)deviceId=rear.deviceId;scannerControls=await codeReader.decodeFromVideoDevice(deviceId,video,result=>{if(result){barcodeInput.value=result.text;stopScanner();autofillFromBarcode(result.text)}})}catch(err){alert('Errore scanner: '+err.message)}}function stopScanner(){scannerArea.classList.add('hidden');if(scannerControls?.stop)scannerControls.stop();if(codeReader?.reset)codeReader.reset();scannerControls=null;codeReader=null}async function checkSession(){const{data}=await sb.auth.getSession();if(data?.session?.user){currentUser=data.session.user;await ensureProfile();showApp();await loadProducts()}}loginBtn.addEventListener('click',login);registerBtn.addEventListener('click',register);saveBtn.addEventListener('click',saveProduct);scanBtn.addEventListener('click',startScanner);stopScanBtn.addEventListener('click',stopScanner);lookupBarcodeBtn.addEventListener('click',()=>{const code=barcodeInput.value.trim();if(!code)return alert('Inserisci o scansiona prima un barcode.');autofillFromBarcode(code)});searchInput.addEventListener('input',renderProducts);filterCategory.addEventListener('change',renderProducts);filterExpiry.addEventListener('change',renderProducts);sortBy.addEventListener('change',renderProducts);resetFiltersBtn.addEventListener('click',()=>{searchInput.value='';filterCategory.value='';filterExpiry.value='';sortBy.value='name';renderProducts()});checkSession();
-// Export/Import functionality
-const exportCsvBtn=document.getElementById("exportCsvBtn"),exportJsonBtn=document.getElementById("exportJsonBtn"),importBtn=document.getElementById("importBtn"),importFile=document.getElementById("importFile");
+
+function setAuthMessage(t){authMsg.textContent=t;}
+function setSaveMessage(t){saveMsg.textContent=t;}
+function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
+function showApp(){authCard.classList.add('hidden');appCard.classList.remove('hidden');listCard.classList.remove('hidden');}
+function formatDate(d){if(!d)return'-';const dt=new Date(d);if(isNaN(dt))return d;return dt.toLocaleDateString('it-IT');}
+function getExpiryBadge(expiryDate){
+  if(!expiryDate)return'';
+  const today=new Date();today.setHours(0,0,0,0);
+  const exp=new Date(expiryDate);exp.setHours(0,0,0,0);
+  const diff=Math.ceil((exp-today)/864e5);
+  if(diff<0)return'<span class="badge late">Scaduto</span>';
+  if(diff<=30)return`<span class="badge late">Scade tra ${diff} giorni</span>`;
+  if(diff<=90)return`<span class="badge warn">Scade tra ${diff} giorni</span>`;
+  return'<span class="badge ok">Ok</span>';
+}
+
+async function register(){
+  const email=emailInput.value.trim(),password=passwordInput.value.trim();
+  if(!email||!password)return setAuthMessage('Inserisci email e password.');
+  setAuthMessage('Registrazione in corso...');
+  const{error}=await sb.auth.signUp({email,password});
+  if(error)return setAuthMessage('Errore: '+error.message);
+  setAuthMessage('Registrazione eseguita. Controlla email e poi accedi.');
+}
+
+async function login(){
+  const email=emailInput.value.trim(),password=passwordInput.value.trim();
+  if(!email||!password)return setAuthMessage('Inserisci email e password.');
+  setAuthMessage('Accesso in corso...');
+  const{data,error}=await sb.auth.signInWithPassword({email,password});
+  if(error)return setAuthMessage('Errore accesso: '+error.message);
+  currentUser=data.user;
+  await ensureProfile();
+  showApp();
+  await loadProducts();
+}
+
+async function ensureProfile(){
+  const{data:profile}=await sb.from('profiles').select('*').eq('id',currentUser.id).maybeSingle();
+  if(profile&&profile.household_id){householdId=profile.household_id;return;}
+  const{data:hh,error:hhErr}=await sb.from('households').insert([{name:'Casa'}]).select().single();
+  if(hhErr){setAuthMessage('Errore household: '+hhErr.message);return;}
+  householdId=hh.id;
+  await sb.from('profiles').upsert([{id:currentUser.id,household_id:householdId,role:'owner'}]);
+}
+
+async function autofillFromBarcode(barcode){
+  if(!barcode)return;
+  setSaveMessage('Cerco il prodotto nel tuo database...');
+  const{data:existing}=await sb.from('products').select('*').eq('household_id',householdId).eq('barcode',barcode).maybeSingle();
+  if(existing){
+    productNameInput.value=existing.name||'';
+    brandInput.value=existing.brand||'';
+    categoryInput.value=existing.category||'';
+    unitsPerPackInput.value=existing.units_per_pack||1;
+    minStockUnitsInput.value=existing.min_stock_units||1;
+    setSaveMessage('Prodotto trovato nel tuo database. Puoi aggiungere un nuovo lotto.');
+    return;
+  }
+  setSaveMessage('Non trovato nel DB locale, cerco online...');
+  try{
+    const res=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+    const data=await res.json();
+    if(data&&data.status===1&&data.product){
+      const p=data.product;
+      if(!productNameInput.value&&p.product_name)productNameInput.value=p.product_name;
+      if(!brandInput.value&&p.brands)brandInput.value=p.brands.split(',')[0].trim();
+      if(!categoryInput.value&&p.categories)categoryInput.value=p.categories.split(',')[0].trim();
+      setSaveMessage('Prodotto trovato online. Salva per memorizzarlo nel tuo database.');
+    }else{
+      setSaveMessage('Barcode letto ma non trovato online. Compila i campi a mano.');
+    }
+  }catch{
+    setSaveMessage('Errore ricerca online. Compila i campi a mano.');
+  }
+}
+
+async function saveProduct(){
+  if(!householdId||!currentUser)return setSaveMessage('Utente non pronto. Rifai il login.');
+  const name=productNameInput.value.trim();
+  if(!name)return setSaveMessage('Inserisci il nome del prodotto.');
+  const barcode=barcodeInput.value.trim()||null,
+        brand=brandInput.value.trim()||null,
+        category=categoryInput.value.trim()||null,
+        unitsPerPack=parseInt(unitsPerPackInput.value)||1,
+        minStockUnits=parseInt(minStockUnitsInput.value)||1,
+        confezioni=parseInt(quantityInput.value)||1,
+        unitaTotali=confezioni*unitsPerPack,
+        expiryDate=expiryDateInput.value||null;
+  setSaveMessage('Salvataggio in corso...');
+  let productId=null;
+  if(barcode){
+    const{data:existing}=await sb.from('products').select('id').eq('household_id',householdId).eq('barcode',barcode).maybeSingle();
+    if(existing){
+      productId=existing.id;
+      await sb.from('products').update({name,brand,category,units_per_pack:unitsPerPack,min_stock_units:minStockUnits}).eq('id',productId);
+    }
+  }
+  if(!productId){
+    const{data:newProd,error:prodErr}=await sb.from('products').insert([{household_id:householdId,name,barcode,brand,category,units_per_pack:unitsPerPack,min_stock_units:minStockUnits}]).select().single();
+    if(prodErr)return setSaveMessage('Errore salvataggio prodotto: '+prodErr.message);
+    productId=newProd.id;
+  }
+  const{data:lot,error:lotErr}=await sb.from('lots').insert([{household_id:householdId,product_id:productId,quantity:unitaTotali,expiry_date:expiryDate}]).select().single();
+  if(lotErr)return setSaveMessage('Errore salvataggio lotto: '+lotErr.message);
+  await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'load',quantity:unitaTotali,note:`Carico iniziale (${confezioni} conf. x ${unitsPerPack} unita)`,created_by:currentUser.id}]);
+  setSaveMessage('Prodotto salvato correttamente!');
+  productNameInput.value='';barcodeInput.value='';brandInput.value='';categoryInput.value='';
+  unitsPerPackInput.value='1';minStockUnitsInput.value='1';quantityInput.value='1';expiryDateInput.value='';
+  await loadProducts();
+}
+
+async function loadProducts(){
+  const{data,error}=await sb.from('products').select('*, lots(*)').eq('household_id',householdId).order('name',{ascending:true});
+  if(error){productList.innerHTML='<p>Errore: '+error.message+'</p>';return;}
+  cachedProducts=data||[];
+  populateCategoryFilter();
+  renderProducts();
+}
+
+function populateCategoryFilter(){
+  const cats=[...new Set(cachedProducts.map(p=>p.category).filter(Boolean))].sort();
+  const current=filterCategory.value;
+  filterCategory.innerHTML='<option value="">Tutte le categorie</option>';
+  cats.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;if(c===current)o.selected=true;filterCategory.appendChild(o);});
+}
+
+function renderProducts(){
+  const term=searchInput.value.trim().toLowerCase(),
+        catFilter=filterCategory.value,
+        expiryFilter=filterExpiry.value,
+        sort=sortBy.value,
+        today=new Date();
+  today.setHours(0,0,0,0);
+  let list=cachedProducts.filter(p=>{
+    const text=[p.name,p.barcode,p.brand,p.category].join(' ').toLowerCase();
+    if(term&&!text.includes(term))return false;
+    if(catFilter&&p.category!==catFilter)return false;
+    if(expiryFilter){
+      const lots=p.lots||[],withExp=lots.filter(l=>l.expiry_date),
+            nearest=[...withExp].sort((a,b)=>new Date(a.expiry_date)-new Date(b.expiry_date))[0];
+      if(expiryFilter==='none'){if(withExp.length>0)return false;}
+      else if(expiryFilter==='expired'){if(!nearest||new Date(nearest.expiry_date)>=today)return false;}
+      else{const days=parseInt(expiryFilter);if(!nearest)return false;const diff=Math.ceil((new Date(nearest.expiry_date)-today)/864e5);if(diff<0||diff>days)return false;}
+    }
+    return true;
+  });
+  list.sort((a,b)=>{
+    const tA=(a.lots||[]).reduce((s,l)=>s+Number(l.quantity||0),0),
+          tB=(b.lots||[]).reduce((s,l)=>s+Number(l.quantity||0),0),
+          nA=(a.lots||[]).filter(l=>l.expiry_date).sort((x,y)=>new Date(x.expiry_date)-new Date(y.expiry_date))[0],
+          nB=(b.lots||[]).filter(l=>l.expiry_date).sort((x,y)=>new Date(x.expiry_date)-new Date(y.expiry_date))[0];
+    if(sort==='name')return(a.name||'').localeCompare(b.name||'','it');
+    if(sort==='expiry'){const da=nA?new Date(nA.expiry_date).getTime():9999999999999,db=nB?new Date(nB.expiry_date).getTime():9999999999999;return da-db;}
+    if(sort==='qty_desc')return tB-tA;
+    if(sort==='qty_asc')return tA-tB;
+    return 0;
+  });
+  if(!list.length){productList.innerHTML='<p class="muted">Nessun prodotto trovato.</p>';return;}
+  productList.innerHTML=list.map(p=>{
+    const lots=p.lots||[],
+          totalUnits=lots.reduce((s,l)=>s+Number(l.quantity||0),0),
+          unitsPerPack=p.units_per_pack||1,
+          minStock=p.min_stock_units||1,
+          nearest=[...lots].filter(l=>l.expiry_date).sort((a,b)=>new Date(a.expiry_date)-new Date(b.expiry_date))[0],
+          confezioniEquiv=unitsPerPack>1?Math.floor(totalUnits/unitsPerPack):null;
+    let badges='';
+    if(totalUnits<=0)badges+='<span class="badge late">Esaurito</span>';
+    else if(totalUnits<=minStock)badges+='<span class="badge warn">Sotto scorta minima</span>';
+    else badges+='<span class="badge ok">Disponibile</span>';
+    if(nearest)badges+=getExpiryBadge(nearest.expiry_date);
+    return `<div class="product" id="prod-${p.id}">
+      <div class="product-name">${escapeHtml(p.name)}</div>
+      <div class="product-meta">
+        ${p.brand?`<span>Marca: <strong>${escapeHtml(p.brand)}</strong></span> &nbsp;`:''}
+        ${p.category?`<span>Categoria: <strong>${escapeHtml(p.category)}</strong></span> &nbsp;`:''}
+        ${p.barcode?`<span>Barcode: <strong>${escapeHtml(p.barcode)}</strong></span>`:''}
+      </div>
+      <div class="product-stock">
+        <div class="stock-item"><span class="stock-label">Unita disponibili</span><span class="stock-value">${totalUnits}</span></div>
+        ${confezioniEquiv!==null?`<div class="stock-item"><span class="stock-label">Confezioni equiv.</span><span class="stock-value">${confezioniEquiv}</span></div>`:''}
+        <div class="stock-item"><span class="stock-label">Unita per conf.</span><span class="stock-value">${unitsPerPack}</span></div>
+        <div class="stock-item"><span class="stock-label">Scorta minima</span><span class="stock-value">${minStock}</span></div>
+        <div class="stock-item"><span class="stock-label">Scadenza vicina</span><span class="stock-value" style="font-size:14px;">${nearest?formatDate(nearest.expiry_date):'-'}</span></div>
+      </div>
+      <div>${badges}</div>
+      <div class="product-actions">
+        <button class="small" onclick="quickAdd('${p.id}')">+1 Confezione</button>
+        <button class="small secondary" onclick="quickRemove('${p.id}')">-1 Unita</button>
+        <button class="small secondary" onclick="toggleEdit('${p.id}')">Modifica</button>
+        <button class="small danger" onclick="deleteProduct('${p.id}')">Elimina</button>
+      </div>
+      <div class="edit-form hidden" id="edit-${p.id}">
+        <label class="field-label">Nome prodotto</label>
+        <input type="text" id="edit-name-${p.id}" value="${escapeHtml(p.name)}" />
+        <label class="field-label">Marca</label>
+        <input type="text" id="edit-brand-${p.id}" value="${escapeHtml(p.brand||'')}" />
+        <label class="field-label">Categoria</label>
+        <input type="text" id="edit-category-${p.id}" value="${escapeHtml(p.category||'')}" />
+        <label class="field-label">Codice a barre (barcode)</label>
+        <input type="text" id="edit-barcode-${p.id}" value="${escapeHtml(p.barcode||'')}" />
+        <div class="row">
+          <div>
+            <label class="field-label">Unita per confezione</label>
+            <input type="number" id="edit-upp-${p.id}" value="${unitsPerPack}" min="1" step="1" />
+            <p class="hint">Es. tonno 3pack - 3</p>
+          </div>
+          <div>
+            <label class="field-label">Scorta minima (unita singole)</label>
+            <input type="number" id="edit-min-${p.id}" value="${minStock}" min="0" step="1" />
+            <p class="hint">Avviso sotto questa soglia</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <button class="small" onclick="saveEdit('${p.id}')">Salva modifiche</button>
+          <button class="small secondary" onclick="toggleEdit('${p.id}')">Annulla</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleEdit(id){document.getElementById('edit-'+id).classList.toggle('hidden');}
+
+async function saveEdit(id){
+  const name=document.getElementById('edit-name-'+id).value.trim(),
+        brand=document.getElementById('edit-brand-'+id).value.trim()||null,
+        category=document.getElementById('edit-category-'+id).value.trim()||null,
+        barcode=document.getElementById('edit-barcode-'+id).value.trim()||null,
+        unitsPerPack=parseInt(document.getElementById('edit-upp-'+id).value)||1,
+        minStockUnits=parseInt(document.getElementById('edit-min-'+id).value)||0;
+  if(!name)return alert('Il nome del prodotto e obbligatorio.');
+  const{error}=await sb.from('products').update({name,brand,category,barcode,units_per_pack:unitsPerPack,min_stock_units:minStockUnits}).eq('id',id);
+  if(error)return alert('Errore modifica: '+error.message);
+  toggleEdit(id);
+  await loadProducts();
+}
+
+async function quickAdd(productId){
+  const p=cachedProducts.find(x=>x.id===productId);
+  if(!p)return alert('Prodotto non trovato.');
+  const unitsPerPack=p.units_per_pack||1;
+  const{data:lot,error:lotErr}=await sb.from('lots').insert([{household_id:householdId,product_id:productId,quantity:unitsPerPack,expiry_date:null}]).select().single();
+  if(lotErr)return alert('Errore carico: '+lotErr.message);
+  await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'load',quantity:unitsPerPack,note:`Carico rapido +1 conf. (${unitsPerPack} unita)`,created_by:currentUser.id}]);
+  await loadProducts();
+}
+
+async function quickRemove(productId){
+  const p=cachedProducts.find(x=>x.id===productId);
+  if(!p)return alert('Prodotto non trovato.');
+  const lots=(p.lots||[]).filter(l=>Number(l.quantity||0)>0);
+  if(!lots.length)return alert('Nessuna unita disponibile da scaricare.');
+  lots.sort((a,b)=>{
+    const da=a.expiry_date?new Date(a.expiry_date).getTime():9999999999999,
+          db=b.expiry_date?new Date(b.expiry_date).getTime():9999999999999;
+    return da-db;
+  });
+  const lot=lots[0],newQty=Number(lot.quantity)-1;
+  const{error:updErr}=await sb.from('lots').update({quantity:newQty}).eq('id',lot.id);
+  if(updErr)return alert('Errore scarico: '+updErr.message);
+  await sb.from('movements').insert([{household_id:householdId,product_id:productId,lot_id:lot.id,movement_type:'unload',quantity:1,note:'Scarico rapido -1 unita',created_by:currentUser.id}]);
+  await loadProducts();
+}
+
+async function deleteProduct(productId){
+  if(!confirm('Sei sicuro di voler eliminare questo prodotto?\nVerranno eliminati anche tutti i lotti e movimenti collegati.'))return;
+  await sb.from('movements').delete().eq('product_id',productId);
+  await sb.from('lots').delete().eq('product_id',productId);
+  const{error}=await sb.from('products').delete().eq('id',productId);
+  if(error)return alert('Errore eliminazione: '+error.message);
+  await loadProducts();
+}
+
+async function startScanner(){
+  if(typeof ZXingBrowser==='undefined')return alert('Libreria scanner non caricata.');
+  scannerArea.classList.remove('hidden');
+  try{
+    codeReader=new ZXingBrowser.BrowserMultiFormatReader();
+    const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
+    if(!devices||!devices.length)return alert('Nessuna fotocamera trovata.');
+    let deviceId=devices[0].deviceId;
+    const rear=devices.find(d=>(d.label||'').toLowerCase().match(/back|rear|environment/));
+    if(rear)deviceId=rear.deviceId;
+    scannerControls=await codeReader.decodeFromVideoDevice(deviceId,video,result=>{
+      if(result){barcodeInput.value=result.text;stopScanner();autofillFromBarcode(result.text);}
+    });
+  }catch(err){alert('Errore scanner: '+err.message);}
+}
+
+function stopScanner(){
+  scannerArea.classList.add('hidden');
+  if(scannerControls?.stop)scannerControls.stop();
+  if(codeReader?.reset)codeReader.reset();
+  scannerControls=null;codeReader=null;
+}
 
 async function exportCsv(){
   try{
     const{data:products,error}=await sb.from('products').select('*').eq('household_id',householdId);
     if(error)throw error;
     const headers=['name','barcode','brand','category','units_per_pack','min_stock_units'];
-    const csv=[headers.join(',')];
-    products.forEach(p=>{
-      const row=[
-        `"${(p.name||'').replace(/"/g,'""')}"`,
-        p.barcode||'',
-        `"${(p.brand||'').replace(/"/g,'""')}"`,
-        `"${(p.category||'').replace(/"/g,'""')}"`,
-        p.units_per_pack||1,
-        p.min_stock_units||1
-      ];
-      csv.push(row.join(','));
-    });
-    const dataBlob=new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'});
-    const url=URL.createObjectURL(dataBlob);
+    const csvRows=[headers.join(',')];
+    for(const p of products){
+      const row=headers.map(h=>{
+        const val=p[h]??'';
+        const str=String(val).replace(/"/g,'""');
+        return str.includes(',')||str.includes('"')||str.includes('\n')?`"${str}"`:str;
+      });
+      csvRows.push(row.join(','));
+    }
+    const csvStr=csvRows.join('\n');
+    const blob=new Blob([csvStr],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
     const link=document.createElement('a');
     link.href=url;
-    link.download=`dispensa-${new Date().toISOString().split('T')[0]}.csv`;
+    link.download=`dispensa-export-${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
     alert(`Esportati ${products.length} prodotti in CSV!`);
-  }catch(err){
-    alert('Errore durante l\'esportazione CSV: '+err.message);
-  }
+  }catch(err){alert('Errore durante l\'esportazione CSV: '+err.message);}
 }
 
 async function exportJson(){
@@ -215,17 +540,33 @@ async function exportJson(){
     const{data:products,error}=await sb.from('products').select('*').eq('household_id',householdId);
     if(error)throw error;
     const dataStr=JSON.stringify(products,null,2);
-    const dataBlob=new Blob([dataStr],{type:'application/json'});
-    const url=URL.createObjectURL(dataBlob);
+    const blob=new Blob([dataStr],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
     const link=document.createElement('a');
     link.href=url;
     link.download=`dispensa-export-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
     alert(`Esportati ${products.length} prodotti in JSON!`);
-  }catch(err){
-    alert('Errore durante l\'esportazione JSON: '+err.message);
+  }catch(err){alert('Errore durante l\'esportazione JSON: '+err.message);}
+}
+
+function parseCsvLine(line){
+  const result=[];let cur='';let inQuotes=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(inQuotes){
+      if(ch==='"'&&line[i+1]==='"'){cur+='"';i++;}
+      else if(ch==='"'){inQuotes=false;}
+      else{cur+=ch;}
+    }else{
+      if(ch==='"'){inQuotes=true;}
+      else if(ch===','){result.push(cur);cur='';}
+      else{cur+=ch;}
+    }
   }
+  result.push(cur);
+  return result;
 }
 
 async function importDatabase(){
@@ -237,94 +578,67 @@ async function importDatabase(){
     let products;
     if(isCSV){
       const lines=text.trim().split('\n');
-      const headers=lines[0].split(',');
-      products=lines.slice(1).map(line=>{
-        const values=line.match(/(".*?"|[^,]+)/g).map(v=>v.replace(/^"|"$/g,'').replace(/""/g,'"'));
+      const headers=parseCsvLine(lines[0]);
+      products=lines.slice(1).filter(l=>l.trim()).map(line=>{
+        const values=parseCsvLine(line);
+        const obj={};
+        headers.forEach((h,i)=>{obj[h.trim()]=values[i]!==undefined?values[i].trim()||null:null;});
         return{
-          name:values[0],
-          barcode:values[1]||null,
-          brand:values[2]||null,
-          category:values[3]||null,
-          units_per_pack:parseInt(values[4])||1,
-          min_stock_units:parseInt(values[5])||1
+          name:obj.name||'',
+          barcode:obj.barcode||null,
+          brand:obj.brand||null,
+          category:obj.category||null,
+          units_per_pack:parseInt(obj.units_per_pack)||1,
+          min_stock_units:parseInt(obj.min_stock_units)||1
         };
       });
     }else{
       products=JSON.parse(text);
     }
-    if(!Array.isArray(products)){
-      alert('File non valido');
-      return;
-    }
+    if(!Array.isArray(products)){alert('File non valido');return;}
     const confirmed=confirm(`Vuoi importare ${products.length} prodotti?`);
     if(!confirmed)return;
     let imported=0;
     for(const product of products){
-      const{id,created_at,updated_at,...productData}=product;
+      const{id,created_at,updated_at,household_id,...productData}=product;
       productData.household_id=householdId;
+      if(!productData.name)continue;
       const{error}=await sb.from('products').insert([productData]);
       if(!error)imported++;
     }
     alert(`Importati ${imported} prodotti!`);
     await loadProducts();
-  }catch(err){
-    alert('Errore durante l\'importazione: '+err.message);
-  }
+  }catch(err){alert('Errore durante l\'importazione: '+err.message);}
   importFile.value='';
 }
 
+async function checkSession(){
+  const{data}=await sb.auth.getSession();
+  if(data?.session?.user){
+    currentUser=data.session.user;
+    await ensureProfile();
+    showApp();
+    await loadProducts();
+  }
+}
+
+loginBtn.addEventListener('click',login);
+registerBtn.addEventListener('click',register);
+saveBtn.addEventListener('click',saveProduct);
+scanBtn.addEventListener('click',startScanner);
+stopScanBtn.addEventListener('click',stopScanner);
+lookupBarcodeBtn.addEventListener('click',()=>{const code=barcodeInput.value.trim();if(!code)return alert('Inserisci o scansiona prima un barcode.');autofillFromBarcode(code);});
+searchInput.addEventListener('input',renderProducts);
+filterCategory.addEventListener('change',renderProducts);
+filterExpiry.addEventListener('change',renderProducts);
+sortBy.addEventListener('change',renderProducts);
+resetFiltersBtn.addEventListener('click',()=>{searchInput.value='';filterCategory.value='';filterExpiry.value='';sortBy.value='name';renderProducts();});
 exportCsvBtn.addEventListener('click',exportCsv);
 exportJsonBtn.addEventListener('click',exportJson);
 importBtn.addEventListener('click',()=>importFile.click());
 importFile.addEventListener('change',importDatabase);
-async function exportDatabase(){
-  try{
-    const{data:products,error}=await sb.from('products').select('*').eq('household_id',householdId);
-    if(error)throw error;
-    const dataStr=JSON.stringify(products,null,2);
-    const dataBlob=new Blob([dataStr],{type:'application/json'});
-    const url=URL.createObjectURL(dataBlob);
-    const link=document.createElement('a');
-    link.href=url;
-    link.download=`dispensa-export-${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-    alert(`Esportati ${products.length} prodotti con successo!`);
-  }catch(err){
-    alert('Errore durante l\'esportazione: '+err.message);
-  }
-}
 
-async function importDatabase(){
-  const file=importFile.files[0];
-  if(!file)return;
-  try{
-    const text=await file.text();
-    const products=JSON.parse(text);
-    if(!Array.isArray(products)){
-      alert('File non valido: deve contenere un array di prodotti');
-      return;
-    }
-    const confirmed=confirm(`Vuoi importare ${products.length} prodotti? Questa operazione aggiungerà i prodotti al tuo database.`);
-    if(!confirmed)return;
-    let imported=0;
-    for(const product of products){
-      const{id,created_at,updated_at,...productData}=product;
-      productData.household_id=householdId;
-      const{error}=await sb.from('products').insert([productData]);
-      if(!error)imported++;
-    }
-    alert(`Importati ${imported} prodotti su ${products.length}!`);
-    await loadProducts();
-  }catch(err){
-    alert('Errore durante l\'importazione: '+err.message);
-  }
-  importFile.value='';
-}
-
-exportBtn.addEventListener('click',exportDatabase);
-importBtn.addEventListener('click',()=>importFile.click());
-importFile.addEventListener('change',importDatabase);
+checkSession();
 </script>
 </body>
 </html>
